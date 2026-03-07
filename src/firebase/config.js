@@ -1,7 +1,4 @@
 // src/firebase/config.js
-// ⚠️  REPLACE these values with YOUR Firebase project credentials
-// Go to: Firebase Console → Your Project → Project Settings → Web App
-
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
@@ -14,6 +11,14 @@ const firebaseConfig = {
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
+
+// Temporary debug — remove after confirming it works
+console.log("Firebase config loaded:", {
+  hasApiKey: !!firebaseConfig.apiKey,
+  hasAuthDomain: !!firebaseConfig.authDomain,
+  hasProjectId: !!firebaseConfig.projectId,
+  projectId: firebaseConfig.projectId,
+});
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
