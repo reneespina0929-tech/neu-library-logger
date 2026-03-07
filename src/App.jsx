@@ -1,7 +1,7 @@
 // src/App.jsx
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import { AuthProvider, useAuth } from "./hooks/useAuth";
+import { AuthProvider, useAuth } from './hooks/useAuth.jsx';
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -31,7 +31,7 @@ const LoadingScreen = () => (
   }}>
     <div style={{ textAlign: "center", color: "var(--gold)" }}>
       <LogoIcon size={48} />
-      <p style={{ color: "rgba(255,255,255,0.5)", marginTop: 12, fontFamily: "'DM Sans', sans-serif" }}>
+      <p style={{ color: "rgba(255,255,255,0.5)", marginTop: 12, fontFamily: "'Poppins', sans-serif" }}>
         Loading...
       </p>
     </div>
@@ -55,7 +55,7 @@ function App() {
           position="top-right"
           toastOptions={{
             style: {
-              fontFamily: "'DM Sans', sans-serif",
+              fontFamily: "'Poppins', sans-serif",
               borderRadius: "10px",
               fontSize: "14px",
             },
@@ -73,7 +73,7 @@ function App() {
             <Route path="logs" element={<LogsPage />} />
             <Route path="profile" element={<ProfilePage />} />
           </Route>
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
