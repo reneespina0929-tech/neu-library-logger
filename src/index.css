@@ -1,0 +1,87 @@
+/* src/index.css */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --navy: #0d1f3c;
+  --navy-light: #1a2f52;
+  --gold: #c9972b;
+  --gold-light: #e8b84b;
+  --gold-pale: #fdf3e0;
+  --white: #ffffff;
+  --gray-50: #f8f9fb;
+  --gray-100: #f0f2f5;
+  --gray-200: #e2e6ed;
+  --gray-400: #9ba3af;
+  --gray-600: #5a6270;
+  --gray-800: #2d3340;
+  --green: #1a9a5c;
+  --green-light: #e8f7f0;
+  --red: #d9392b;
+  --red-light: #fdecea;
+  --amber: #c9972b;
+  --amber-light: #fdf3e0;
+  --shadow-sm: 0 1px 3px rgba(13, 31, 60, 0.08);
+  --shadow-md: 0 4px 12px rgba(13, 31, 60, 0.10);
+  --shadow-lg: 0 8px 28px rgba(13, 31, 60, 0.13);
+  --radius: 10px;
+  --radius-lg: 16px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--gray-50);
+  color: var(--gray-800);
+  min-height: 100vh;
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: 'Poppins', sans-serif;
+  color: var(--navy);
+  font-weight: 600;
+}
+
+p { font-size: 14px; }
+
+a { text-decoration: none; color: inherit; }
+
+button {
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+input, select, textarea {
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--gray-100); }
+::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gray-400); }
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+.fade-in { animation: fadeIn 0.35s ease both; }
+.slide-in { animation: slideIn 0.3s ease both; }

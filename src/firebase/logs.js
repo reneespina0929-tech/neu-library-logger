@@ -1,0 +1,108 @@
+// src/firebase/logs.js
+import {
+  collection,
+  addDoc,
+  updateDoc,
+  doc,
+  query,
+  orderBy,
+  onSnapshot,
+  serverTimestamp,
+  where,
+  limit,
+} from "firebase/firestore";
+import { db } from "./config";
+
+// Log a new library visit (time-in)
+export const timeIn = async (studentId, studentName, purpose, loggedBy, loggedByUid) => {
+  const docRef = await addDoc(collection(db, "logs"), {
+    studentId,
+    studentName,
+    purpose,
+    loggedBy,
+    loggedByUid,                                        // uid of the person who logged the visit
+    timeIn: serverTimestamp(),
+    timeOut: null,
+    status: "active",
+    date: new Date().toISOString().split("T")[0],       // YYYY-MM-DD
+  });
+  return docRef.id;
+};
+
+// Log time-out for an existing visit
+export const timeOut = async (logId) => {
+  const logRef = doc(db, "logs", logId);
+  await updateDoc(logRef, {
+    timeOut: serverTimestamp(),
+    status: "completed",
+  });
+};
+
+// Real-time listener for all logs.
+// We fetch ordered by timeIn and filter date client-side to avoid
+// requiring a composite Firestore index (date + timeIn).
+export const subscribeLogs = (callback, dateFilter = null) => {
+  const q = query(
+    collection(db, "logs"),
+    orderBy("timeIn", "desc"),
+    limit(500)
+  );
+  return onSnapshot(q, (snapshot) => {
+    let logs = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+    if (dateFilter) {
+      logs = logs.filter((l) => l.date === dateFilter);
+    }
+    callback(logs);
+  });
+};
+
+// Get active (still inside) visitors
+export const subscribeActiveVisitors = (callback) => {
+  const q = query(
+    collection(db, "logs"),
+    where("status", "==", "active"),
+    orderBy("timeIn", "desc")
+  );
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      const logs = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+      callback(logs);
+    },
+    (error) => {
+      // Fallback while Firestore index is still building
+      console.warn("Index pending, using fallback:", error.message);
+      const fallback = query(collection(db, "logs"), where("status", "==", "active"));
+      onSnapshot(fallback, (snap) => {
+        callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+      });
+    }
+  );
+};
+
+// Get all logs created by a specific user (for My Profile page)
+export const subscribeMyLogs = (uid, callback) => {
+  const q = query(
+    collection(db, "logs"),
+    where("loggedByUid", "==", uid),
+    orderBy("timeIn", "desc")
+  );
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      const logs = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+      callback(logs);
+    },
+    (error) => {
+      // Fallback while index builds
+      console.warn("My logs index pending, using fallback:", error.message);
+      const fallback = query(collection(db, "logs"), where("loggedByUid", "==", uid));
+      onSnapshot(fallback, (snap) => {
+        const logs = snap.docs
+          .map((d) => ({ id: d.id, ...d.data() }))
+          .sort((a, b) => (b.timeIn?.seconds || 0) - (a.timeIn?.seconds || 0));
+        callback(logs);
+      });
+    }
+  );
+};
