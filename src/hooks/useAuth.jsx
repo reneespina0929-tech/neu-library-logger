@@ -12,10 +12,13 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Safety timeout — if Firebase never responds (bad config), stop loading after 5s
+    const timeout = setTimeout(() => setLoading(false), 5000);
+
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      clearTimeout(timeout);
       if (firebaseUser) {
         setUser(firebaseUser);
-        // Fetch role/profile from Firestore
         try {
           const profileDoc = await getDoc(doc(db, "users", firebaseUser.uid));
           if (profileDoc.exists()) {
@@ -30,7 +33,7 @@ export const AuthProvider = ({ children }) => {
       }
       setLoading(false);
     });
-    return unsubscribe;
+    return () => { unsubscribe(); clearTimeout(timeout); };
   }, []);
 
   return (
