@@ -12,6 +12,7 @@ import Layout from "./components/layout/Layout";
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
+  console.log("ProtectedRoute:", { user: !!user, loading });
   if (loading) return <LoadingScreen />;
   if (!user) return <Navigate to="/login" replace />;
   return children;
@@ -19,6 +20,7 @@ const ProtectedRoute = ({ children }) => {
 
 const PublicRoute = ({ children }) => {
   const { user, loading } = useAuth();
+  console.log("PublicRoute:", { user: !!user, loading });
   if (loading) return <LoadingScreen />;
   if (user) return <Navigate to="/dashboard" replace />;
   return children;
