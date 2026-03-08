@@ -18,21 +18,29 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPw, setShowPw] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email || !password) { toast.error("Please fill in all fields"); return; }
+    setError("");
+    if (!email || !password) { setError("Please fill in all fields."); return; }
     setLoading(true);
     try {
       await loginUser(email, password);
       toast.success("Welcome back!");
       navigate("/dashboard");
     } catch (err) {
-      const msg = err.code === "auth/invalid-credential"
-        ? "Invalid email or password"
-        : "Login failed. Please try again.";
-      toast.error(msg);
+      const code = err.code || "";
+      if (code === "auth/invalid-credential" || code === "auth/wrong-password" || code === "auth/user-not-found" || code === "auth/invalid-email") {
+        setError("Invalid email or password. Please try again.");
+      } else if (code === "auth/too-many-requests") {
+        setError("Too many failed attempts. Please wait a moment and try again.");
+      } else if (code === "auth/network-request-failed") {
+        setError("Network error. Please check your connection.");
+      } else {
+        setError("Login failed. Please try again. (" + code + ")");
+      }
     } finally {
       setLoading(false);
     }
@@ -42,7 +50,6 @@ export default function LoginPage() {
     <div style={{
       minHeight: "100vh", display: "flex",
       background: "linear-gradient(135deg, var(--navy) 0%, #1a2f52 60%, #0d1f3c 100%)",
-      position: "relative", zIndex: 9999,
     }}>
       {/* Left panel */}
       <div style={{
@@ -124,6 +131,16 @@ export default function LoginPage() {
                 </div>
               </div>
 
+              {error && (
+                <div style={{
+                  background: "rgba(217,57,43,0.15)", border: "1px solid rgba(217,57,43,0.4)",
+                  borderRadius: 8, padding: "10px 14px",
+                  color: "#ff8a80", fontSize: 13, display: "flex", alignItems: "center", gap: 8,
+                }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{flexShrink:0}}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  {error}
+                </div>
+              )}
               <button
                 onClick={handleSubmit}
                 disabled={loading}

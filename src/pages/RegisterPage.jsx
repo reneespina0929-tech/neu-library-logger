@@ -16,23 +16,25 @@ const LogoIcon = ({ size = 40 }) => (
 export default function RegisterPage() {
   const [form, setForm] = useState({ displayName: "", email: "", password: "", confirm: "" });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
     if (!form.displayName || !form.email || !form.password) {
-      toast.error("Please fill in all fields"); return;
+      setError("Please fill in all fields."); return;
     }
     if (!form.email.toLowerCase().endsWith("@neu.edu.ph")) {
-      toast.error("Please use your NEU email (@neu.edu.ph)"); return;
+      setError("Please use your NEU email address (@neu.edu.ph)."); return;
     }
     if (form.password.length < 6) {
-      toast.error("Password must be at least 6 characters"); return;
+      setError("Password must be at least 6 characters."); return;
     }
     if (form.password !== form.confirm) {
-      toast.error("Passwords do not match"); return;
+      setError("Passwords do not match."); return;
     }
     setLoading(true);
     try {
@@ -40,10 +42,18 @@ export default function RegisterPage() {
       toast.success("Account created! Welcome.");
       navigate("/dashboard");
     } catch (err) {
-      const msg = err.code === "auth/email-already-in-use"
-        ? "This email is already registered"
-        : "Registration failed. Please try again.";
-      toast.error(msg);
+      const code = err.code || "";
+      if (code === "auth/email-already-in-use") {
+        setError("This email is already registered. Try logging in instead.");
+      } else if (code === "auth/weak-password") {
+        setError("Password is too weak. Please use at least 6 characters.");
+      } else if (code === "auth/invalid-email") {
+        setError("Invalid email address format.");
+      } else if (code === "auth/network-request-failed") {
+        setError("Network error. Please check your connection.");
+      } else {
+        setError("Registration failed. Please try again. (" + code + ")");
+      }
     } finally {
       setLoading(false);
     }
@@ -95,6 +105,17 @@ export default function RegisterPage() {
             <Field label="Confirm Password" type="password" value={form.confirm} onChange={set("confirm")} placeholder="Repeat password"
               onKeyDown={e => e.key === "Enter" && handleSubmit(e)}
             />
+
+            {error && (
+              <div style={{
+                background: "rgba(217,57,43,0.15)", border: "1px solid rgba(217,57,43,0.4)",
+                borderRadius: 8, padding: "10px 14px",
+                color: "#ff8a80", fontSize: 13, display: "flex", alignItems: "center", gap: 8,
+              }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{flexShrink:0}}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                {error}
+              </div>
+            )}
 
             <button
               onClick={handleSubmit}
