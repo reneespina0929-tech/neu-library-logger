@@ -1,280 +1,191 @@
-// src/pages/ProfilePage.jsx
-import { useState, useEffect } from "react";
-import { useAuth } from '../hooks/useAuth.jsx';
-import { subscribeLogs } from "../firebase/logs";
-import { formatTimestamp, formatDate, formatDuration } from "../utils/helpers";
-import { updateProfile } from "firebase/auth";
-import { doc, updateDoc } from "firebase/firestore";
-import { auth, db } from "../firebase/config";
+// src/pages/LoginPage.jsx
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { loginUser } from "../firebase/auth";
 import toast from "react-hot-toast";
 
-export default function ProfilePage() {
-  const { user, userProfile } = useAuth();
-  const [myLogs, setMyLogs] = useState([]);
-  const [editing, setEditing] = useState(false);
-  const [displayName, setDisplayName] = useState(user?.displayName || "");
-  const [studentId, setStudentId] = useState(userProfile?.studentId || "");
-  const [saving, setSaving] = useState(false);
+const LogoIcon = ({ size = 40 }) => (
+  <svg width={size} height={size} viewBox="0 0 40 40" fill="none">
+    <rect width="40" height="40" rx="10" fill="#c9972b" />
+    <path d="M10 10h8v20h-8z" fill="white" opacity="0.9" />
+    <path d="M20 10h10v2H20zm0 5h10v2H20zm0 5h10v2H20zm0 5h7v2h-7z" fill="white" opacity="0.7" />
+    <path d="M8 30h24v2H8z" fill="white" opacity="0.5" />
+  </svg>
+);
 
-  const initials = (user?.displayName || user?.email || "U")
-    .split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
+export default function LoginPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showPw, setShowPw] = useState(false);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    if (userProfile?.studentId) setStudentId(userProfile.studentId);
-  }, [userProfile]);
-
-  useEffect(() => {
-    if (!user) return;
-    // Subscribe to all logs, filter client-side by uid OR by name/email
-    // This covers both old logs (no loggedByUid) and new ones
-    const unsub = subscribeLogs((allLogs) => {
-      const mine = allLogs.filter(
-        l => l.loggedByUid === user.uid ||
-             l.loggedBy === user.displayName ||
-             l.loggedBy === user.email
-      );
-      setMyLogs(mine);
-    });
-    return unsub;
-  }, [user]);
-
-  const handleSave = async () => {
-    if (!displayName.trim()) { toast.error("Name cannot be empty"); return; }
-    setSaving(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!email || !password) { toast.error("Please fill in all fields"); return; }
+    setLoading(true);
     try {
-      await updateProfile(auth.currentUser, { displayName: displayName.trim() });
-      await updateDoc(doc(db, "users", user.uid), {
-        displayName: displayName.trim(),
-        studentId: studentId.trim().toUpperCase(),
-      });
-      toast.success("Profile updated!");
-      setEditing(false);
-    } catch {
-      toast.error("Failed to update profile");
+      await loginUser(email, password);
+      toast.success("Welcome back!");
+      navigate("/dashboard");
+    } catch (err) {
+      const msg = err.code === "auth/invalid-credential"
+        ? "Invalid email or password"
+        : "Login failed. Please try again.";
+      toast.error(msg);
     } finally {
-      setSaving(false);
+      setLoading(false);
     }
   };
 
-  const totalVisits = myLogs.length;
-  const completedVisits = myLogs.filter(l => l.status === "completed").length;
-
   return (
-    <div className="fade-in">
-      <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 24, marginBottom: 4 }}>My Profile</h1>
-        <p style={{ color: "var(--gray-400)", fontSize: 14 }}>Your account information and visit history</p>
-      </div>
-
-      <div style={{ display: "flex", gap: 24, flexWrap: "wrap", alignItems: "flex-start" }}>
-        {/* Profile card */}
-        <div style={{
-          flex: "0 0 300px", background: "white", borderRadius: "var(--radius-lg)",
-          boxShadow: "var(--shadow-sm)", border: "1px solid var(--gray-100)", overflow: "hidden",
-        }}>
-          <div style={{
-            background: "var(--navy)", padding: "32px 24px", textAlign: "center",
-          }}>
-            <div style={{
-              width: 72, height: 72, borderRadius: "50%", background: "var(--gold)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              margin: "0 auto 12px",
-              color: "var(--navy)", fontWeight: 800, fontSize: 26,
-              fontFamily: "'Poppins', sans-serif",
-            }}>{initials}</div>
-            {editing ? (
-              <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>
-                <input
-                  value={displayName}
-                  onChange={e => setDisplayName(e.target.value)}
-                  style={{
-                    background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)",
-                    color: "white", padding: "6px 10px", borderRadius: 6, fontSize: 16,
-                    outline: "none", textAlign: "center",
-                  }}
-                />
-              </div>
-            ) : (
-              <h2 style={{ color: "white", fontFamily: "'Poppins', sans-serif", fontSize: 18 }}>
-                {user?.displayName || "User"}
-              </h2>
-            )}
-            <span style={{
-              display: "inline-block", marginTop: 6,
-              background: "rgba(201,151,43,0.2)", color: "var(--gold-light)",
-              fontSize: 15, fontWeight: 600, padding: "3px 10px", borderRadius: 20,
-              textTransform: "capitalize",
-            }}>
-              {userProfile?.role || "student"}
-            </span>
+    <div style={{
+      minHeight: "100vh", display: "flex",
+      background: "linear-gradient(135deg, var(--navy) 0%, #1a2f52 60%, #0d1f3c 100%)",
+      position: "relative", zIndex: 9999,
+    }}>
+      {/* Left panel */}
+      <div style={{
+        flex: 1, display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center",
+        padding: 40, maxWidth: 480, margin: "0 auto",
+      }}>
+        <div style={{ width: "100%", maxWidth: 380 }} className="fade-in">
+          {/* Logo */}
+          <div style={{ textAlign: "center", marginBottom: 36 }}>
+            <LogoIcon size={52} />
+            <h1 style={{
+              color: "var(--gold)", fontFamily: "'Poppins', sans-serif",
+              fontSize: 28, marginTop: 12, marginBottom: 4,
+            }}>LibraLog</h1>
+            <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 13 }}>
+              New Era University Library System
+            </p>
           </div>
 
-          <div style={{ padding: "20px 24px" }}>
-            <InfoItem label="Email" value={user?.email || "—"} />
-            <div style={{ marginBottom: 13 }}>
-              <div style={{ color: "var(--gray-400)", fontSize: 11, fontWeight: 600, marginBottom: 3, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                Student ID
-              </div>
-              {editing ? (
+          {/* Card */}
+          <div style={{
+            background: "rgba(255,255,255,0.04)", backdropFilter: "blur(12px)",
+            border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: 32,
+          }}>
+            <h2 style={{
+              color: "white", fontSize: 20, fontFamily: "'Poppins', sans-serif",
+              marginBottom: 4,
+            }}>Sign In</h2>
+            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 13, marginBottom: 24 }}>
+              Enter your credentials to continue
+            </p>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <div>
+                <label style={{ color: "rgba(255,255,255,0.6)", fontSize: 12, fontWeight: 500, display: "block", marginBottom: 6 }}>
+                  Email Address
+                </label>
                 <input
-                  value={studentId}
-                  onChange={e => setStudentId(e.target.value)}
-                  placeholder="e.g. 24-12345-678"
-                  style={{
-                    width: "100%", padding: "7px 10px",
-                    border: "1px solid var(--gray-200)", borderRadius: 6,
-                    fontSize: 14, outline: "none", fontFamily: "'Poppins', sans-serif",
-                  }}
-                  onFocus={e => e.target.style.borderColor = "var(--navy)"}
-                  onBlur={e => e.target.style.borderColor = "var(--gray-200)"}
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="you@neu.edu.ph"
+                  style={inputStyle}
+                  onFocus={e => e.target.style.borderColor = "var(--gold)"}
+                  onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.12)"}
                 />
-              ) : (
-                <div style={{ fontSize: 15, color: "var(--gray-800)", fontWeight: userProfile?.studentId ? 500 : 400 }}>
-                  {userProfile?.studentId || <span style={{ color: "var(--gray-400)", fontStyle: "italic" }}>Not set — click Edit to add</span>}
+              </div>
+              <div>
+                <label style={{ color: "rgba(255,255,255,0.6)", fontSize: 12, fontWeight: 500, display: "block", marginBottom: 6 }}>
+                  Password
+                </label>
+                <div style={{ position: "relative" }}>
+                  <input
+                    type={showPw ? "text" : "password"}
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    onKeyDown={e => e.key === "Enter" && handleSubmit(e)}
+                    style={{ ...inputStyle, paddingRight: 42 }}
+                    onFocus={e => e.target.style.borderColor = "var(--gold)"}
+                    onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.12)"}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPw(v => !v)}
+                    style={{
+                      position: "absolute", right: 12, top: "50%",
+                      transform: "translateY(-50%)", background: "none",
+                      color: "rgba(255,255,255,0.4)", padding: 0, lineHeight: 1,
+                    }}
+                  >
+                    {showPw ? (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                    ) : (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    )}
+                  </button>
                 </div>
-              )}
-            </div>
-            <InfoItem label="Member since" value={
-              user?.metadata?.creationTime
-                ? new Date(user.metadata.creationTime).toLocaleDateString("en-PH", { month: "long", year: "numeric" })
-                : "—"
-            } />
-
-            <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
-              {editing ? (
-                <>
-                  <button
-                    onClick={handleSave}
-                    disabled={saving}
-                    style={{
-                      flex: 1, padding: "8px", background: "var(--navy)", color: "white",
-                      fontWeight: 600, fontSize: 15, borderRadius: 8, cursor: "pointer",
-                    }}
-                  >
-                    {saving ? "Saving..." : "Save"}
-                  </button>
-                  <button
-                    onClick={() => { setEditing(false); setDisplayName(user?.displayName || ""); }}
-                    style={{
-                      flex: 1, padding: "8px", background: "var(--gray-100)", color: "var(--gray-600)",
-                      fontWeight: 600, fontSize: 15, borderRadius: 8, cursor: "pointer",
-                    }}
-                  >
-                    Cancel
-                  </button>
-                </>
-              ) : (
-                <button
-                  onClick={() => setEditing(true)}
-                  style={{
-                    width: "100%", padding: "8px", background: "var(--gray-100)", color: "var(--gray-800)",
-                    fontWeight: 600, fontSize: 15, borderRadius: 8, cursor: "pointer",
-                  }}
-                >
-                  Edit Display Name
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Stats */}
-          <div style={{
-            borderTop: "1px solid var(--gray-100)", padding: "16px 24px",
-            display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12,
-          }}>
-            <StatMini label="Total Visits" value={totalVisits} />
-            <StatMini label="Completed" value={completedVisits} />
-          </div>
-        </div>
-
-        {/* My visit history */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{
-            background: "white", borderRadius: "var(--radius-lg)",
-            boxShadow: "var(--shadow-sm)", border: "1px solid var(--gray-100)",
-            overflow: "hidden",
-          }}>
-            <div style={{ padding: "18px 24px", borderBottom: "1px solid var(--gray-100)" }}>
-              <h3 style={{ fontSize: 16, marginBottom: 2 }}>My Visit History</h3>
-              <p style={{ color: "var(--gray-400)", fontSize: 12 }}>Your personal library visit records</p>
-            </div>
-            {myLogs.length === 0 ? (
-              <div style={{ padding: "40px 24px", textAlign: "center" }}>
-                <p style={{ fontWeight: 500, color: "var(--gray-600)" }}>No visits recorded yet</p>
-                <p style={{ fontSize: 15, color: "var(--gray-400)", marginTop: 4 }}>
-                  Your visit history will appear here
-                </p>
               </div>
-            ) : (
-              <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                  <thead>
-                    <tr style={{ background: "var(--gray-50)" }}>
-                      {["Date", "Time In", "Time Out", "Duration", "Purpose", "Status"].map(h => (
-                        <th key={h} style={{
-                          padding: "10px 16px", textAlign: "left", fontSize: 15,
-                          fontWeight: 600, color: "var(--gray-400)", textTransform: "uppercase",
-                          letterSpacing: "0.06em", whiteSpace: "nowrap",
-                        }}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {myLogs.map((log, i) => (
-                      <tr key={log.id} style={{
-                        borderTop: "1px solid var(--gray-100)",
-                        background: i % 2 === 0 ? "white" : "var(--gray-50)",
-                      }}>
-                        <td style={{ padding: "11px 16px", fontSize: 15, whiteSpace: "nowrap" }}>
-                          {formatDate(log.timeIn)}
-                        </td>
-                        <td style={{ padding: "11px 16px", fontSize: 13 }}>{formatTimestamp(log.timeIn)}</td>
-                        <td style={{ padding: "11px 16px", fontSize: 13 }}>
-                          {log.timeOut ? formatTimestamp(log.timeOut) : <span style={{ color: "var(--gray-300)" }}>—</span>}
-                        </td>
-                        <td style={{ padding: "11px 16px", fontSize: 15, fontWeight: 500 }}>
-                          {formatDuration(log.timeIn, log.timeOut)}
-                        </td>
-                        <td style={{ padding: "11px 16px", fontSize: 16, color: "var(--gray-600)" }}>{log.purpose}</td>
-                        <td style={{ padding: "11px 16px" }}>
-                          <span style={{
-                            fontSize: 15, fontWeight: 600, padding: "2px 8px", borderRadius: 20,
-                            background: log.status === "active" ? "var(--green-light)" : "var(--gray-100)",
-                            color: log.status === "active" ? "var(--green)" : "var(--gray-600)",
-                          }}>
-                            {log.status === "active" ? "Inside" : "Done"}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+
+              <button
+                onClick={handleSubmit}
+                disabled={loading}
+                style={{
+                  width: "100%", padding: "12px",
+                  background: loading ? "rgba(201,151,43,0.5)" : "var(--gold)",
+                  color: "var(--navy)", fontWeight: 700, fontSize: 14,
+                  borderRadius: 8, marginTop: 4, transition: "all 0.15s",
+                  cursor: loading ? "not-allowed" : "pointer",
+                }}
+              >
+                {loading ? "Signing in..." : "Sign In"}
+              </button>
+            </div>
+
+            <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 13, textAlign: "center", marginTop: 20 }}>
+              Don't have an account?{" "}
+              <Link to="/register" style={{ color: "var(--gold-light)", fontWeight: 500 }}>
+                Register here
+              </Link>
+            </p>
           </div>
+
+          <p style={{ color: "rgba(255,255,255,0.2)", fontSize: 11, textAlign: "center", marginTop: 20 }}>
+            © {new Date().getFullYear()} New Era University · All rights reserved
+          </p>
         </div>
       </div>
+
+      {/* Right decorative panel */}
+      <div style={{
+        flex: 1, display: "none", background: "rgba(201,151,43,0.06)",
+        borderLeft: "1px solid rgba(255,255,255,0.04)",
+        alignItems: "center", justifyContent: "center", padding: 60,
+      }} className="desktop-right">
+        <div style={{ textAlign: "center", color: "rgba(255,255,255,0.6)" }}>
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="rgba(201,151,43,0.6)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: 20 }}>
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+          <h2 style={{
+            color: "var(--gold)", fontFamily: "'Poppins', sans-serif",
+            fontSize: 26, marginBottom: 12,
+          }}>NEU Library Visit Logger</h2>
+          <p style={{ fontSize: 14, lineHeight: 1.7, maxWidth: 300, margin: "0 auto", opacity: 0.6 }}>
+            Track student visits, manage library attendance, and generate reports — all in one place.
+          </p>
+        </div>
+      </div>
+
+      <style>{`
+        @media (min-width: 900px) {
+          .desktop-right { display: flex !important; }
+        }
+      `}</style>
     </div>
   );
 }
 
-const InfoItem = ({ label, value, mono }) => (
-  <div style={{ marginBottom: 12 }}>
-    <div style={{ color: "var(--gray-400)", fontSize: 11, fontWeight: 600, marginBottom: 3, textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}</div>
-    <div style={{
-      fontSize: 15, color: "var(--gray-800)", fontFamily: mono ? "monospace" : "inherit",
-    }}>{value}</div>
-  </div>
-);
-
-const StatMini = ({ label, value }) => (
-  <div style={{
-    textAlign: "center", padding: "10px 8px",
-    background: "var(--gray-50)", borderRadius: 8,
-  }}>
-    <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 22, color: "var(--navy)", fontWeight: 700 }}>
-      {value}
-    </div>
-    <div style={{ fontSize: 15, color: "var(--gray-400)", marginTop: 2, fontWeight: 500 }}>{label}</div>
-  </div>
-);
+const inputStyle = {
+  width: "100%", padding: "10px 14px",
+  background: "rgba(255,255,255,0.06)",
+  border: "1px solid rgba(255,255,255,0.12)",
+  borderRadius: 8, color: "white", fontSize: 14,
+  outline: "none", transition: "border-color 0.15s",
+};
