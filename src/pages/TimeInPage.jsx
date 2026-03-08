@@ -44,138 +44,74 @@ export default function TimeInPage() {
 
   return (
     <div className="fade-in">
-      <div style={{ marginBottom: 28 }}>
-        <h1 style={{ fontSize: 24, marginBottom: 4 }}>Log Visit</h1>
-        <p style={{ color: "var(--gray-400)", fontSize: 14 }}>
-          Record a student's library entry
-        </p>
+      <style>{`
+        .timein-layout { display: flex; gap: 20px; align-items: flex-start; }
+        .timein-form { flex: 1 1 360px; background: white; border-radius: 12px; box-shadow: var(--shadow-sm); border: 1px solid var(--gray-100); overflow: hidden; }
+        .timein-side { flex: 1 1 260px; display: flex; flex-direction: column; gap: 14px; }
+        @media (max-width: 768px) {
+          .timein-layout { flex-direction: column; }
+          .timein-side { width: 100%; }
+        }
+      `}</style>
+
+      <div style={{ marginBottom: 20 }}>
+        <h1 style={{ fontSize: 20, marginBottom: 2 }}>Log Visit</h1>
+        <p style={{ color: "var(--gray-400)", fontSize: 13 }}>Record a student's library entry</p>
       </div>
 
-      <div style={{ display: "flex", gap: 24, flexWrap: "wrap", alignItems: "flex-start" }}>
+      <div className="timein-layout">
         {/* Form */}
-        <div style={{
-          flex: "1 1 360px", background: "white", borderRadius: "var(--radius-lg)",
-          boxShadow: "var(--shadow-sm)", border: "1px solid var(--gray-100)", overflow: "hidden",
-        }}>
-          <div style={{
-            padding: "18px 24px", borderBottom: "1px solid var(--gray-100)",
-            background: "var(--navy)",
-          }}>
-            <h2 style={{ color: "var(--gold)", fontSize: 16, fontFamily: "'Poppins', sans-serif" }}>
-              New Visit Entry
-            </h2>
-            <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 16, marginTop: 2 }}>
-              Time-in a student or visitor
-            </p>
+        <div className="timein-form">
+          <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--gray-100)", background: "var(--navy)" }}>
+            <h2 style={{ color: "var(--gold)", fontSize: 15, fontFamily: "'Poppins', sans-serif" }}>New Visit Entry</h2>
+            <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 13, marginTop: 2 }}>Time-in a student or visitor</p>
           </div>
 
-          <div style={{ padding: 28 }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-              <Field
-                id="studentId"
-                label="Student ID Number"
-                value={form.studentId}
-                onChange={set("studentId")}
-                placeholder="e.g. 2023-00001"
-                required
-              />
-              <Field
-                label="Full Name"
-                value={form.studentName}
-                onChange={set("studentName")}
-                placeholder="e.g. Juan Dela Cruz"
-                required
-              />
+          <div style={{ padding: 20 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <Field id="studentId" label="Student ID Number" value={form.studentId} onChange={set("studentId")} placeholder="e.g. 2023-00001" required />
+              <Field label="Full Name" value={form.studentName} onChange={set("studentName")} placeholder="e.g. Juan Dela Cruz" required />
               <div>
-                <label style={labelStyle}>
-                  Purpose of Visit <span style={{ color: "var(--red)" }}>*</span>
-                </label>
-                <select
-                  value={form.purpose}
-                  onChange={set("purpose")}
-                  style={{ ...inputStyle, cursor: "pointer", color: form.purpose ? "var(--gray-800)" : "var(--gray-400)" }}
-                >
+                <label style={labelStyle}>Purpose of Visit <span style={{ color: "var(--red)" }}>*</span></label>
+                <select value={form.purpose} onChange={set("purpose")} style={{ ...inputStyle, cursor: "pointer", color: form.purpose ? "var(--gray-800)" : "var(--gray-400)" }}>
                   <option value="" disabled>Select purpose...</option>
-                  {purposeOptions.map(p => (
-                    <option key={p} value={p}>{p}</option>
-                  ))}
+                  {purposeOptions.map(p => <option key={p} value={p}>{p}</option>)}
                 </select>
               </div>
-
-              <button
-                onClick={handleSubmit}
-                disabled={loading}
-                style={{
-                  padding: "13px", background: loading ? "rgba(13,31,60,0.5)" : "var(--navy)",
-                  color: "white", fontWeight: 600, fontSize: 15,
-                  borderRadius: 10, marginTop: 4,
-                  cursor: loading ? "not-allowed" : "pointer",
-                  display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                  transition: "background 0.15s",
-                }}
-                onMouseEnter={e => !loading && (e.currentTarget.style.background = "var(--navy-light)")}
-                onMouseLeave={e => !loading && (e.currentTarget.style.background = "var(--navy)")}
-              >
-                {loading ? (
-                  "Logging..."
-                ) : (
-                  <>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                    </svg>
-                    Log Time-In
-                  </>
-                )}
+              <button onClick={handleSubmit} disabled={loading} style={{ padding: "13px", background: loading ? "rgba(13,31,60,0.5)" : "var(--navy)", color: "white", fontWeight: 600, fontSize: 15, borderRadius: 10, cursor: loading ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, transition: "background 0.15s", width: "100%" }}>
+                {loading ? "Logging..." : <><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Log Time-In</>}
               </button>
             </div>
           </div>
         </div>
 
         {/* Right side */}
-        <div style={{ flex: "1 1 280px", display: "flex", flexDirection: "column", gap: 16 }}>
-          {/* Success confirmation */}
+        <div className="timein-side">
           {lastLogged && (
-            <div style={{
-              background: "var(--green-light)", border: "1px solid #a8e6cc",
-              borderRadius: "var(--radius-lg)", padding: 20,
-            }} className="fade-in">
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-                <div style={{
-                  width: 32, height: 32, borderRadius: "50%", background: "var(--green)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
-                    <polyline points="20 6 9 17 4 12"/>
-                  </svg>
+            <div style={{ background: "var(--green-light)", border: "1px solid #a8e6cc", borderRadius: 12, padding: 16 }} className="fade-in">
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                <div style={{ width: 30, height: 30, borderRadius: "50%", background: "var(--green)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
                 </div>
                 <div>
                   <div style={{ fontWeight: 600, color: "var(--green)", fontSize: 14 }}>Successfully Logged!</div>
-                  <div style={{ color: "var(--green)", opacity: 0.7, fontSize: 12 }}>
-                    {lastLogged.time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                  </div>
+                  <div style={{ color: "var(--green)", opacity: 0.7, fontSize: 12 }}>{lastLogged.time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</div>
                 </div>
               </div>
-              <div style={{ display: "grid", gap: 6, fontSize: 15 }}>
+              <div style={{ display: "grid", gap: 5, fontSize: 13 }}>
                 <InfoRow label="Student ID" value={lastLogged.studentId.toUpperCase()} />
                 <InfoRow label="Name" value={lastLogged.studentName} />
                 <InfoRow label="Purpose" value={lastLogged.purpose} />
               </div>
             </div>
           )}
-
-          {/* Tips */}
-          <div style={{
-            background: "var(--gray-50)", border: "1px solid var(--gray-200)",
-            borderRadius: "var(--radius-lg)", padding: 20,
-          }}>
-            <h3 style={{ fontSize: 14, fontWeight: 600, color: "var(--gray-600)", marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-              Notes
-            </h3>
-            <ul style={{ color: "var(--gray-600)", fontSize: 14, lineHeight: 2, paddingLeft: 16 }}>
-              <li>Form resets automatically after each submission</li>
-              <li>Student ID is saved in uppercase automatically</li>
-              <li>Active visitors are visible on the Dashboard</li>
-              <li>Librarians and admins can time-out visitors from the Dashboard</li>
+          <div style={{ background: "var(--gray-50)", border: "1px solid var(--gray-200)", borderRadius: 12, padding: 16 }}>
+            <h3 style={{ fontSize: 12, fontWeight: 600, color: "var(--gray-600)", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>Notes</h3>
+            <ul style={{ color: "var(--gray-600)", fontSize: 13, lineHeight: 1.9, paddingLeft: 16 }}>
+              <li>Form resets after each submission</li>
+              <li>Student ID saved in uppercase</li>
+              <li>Active visitors visible on Dashboard</li>
+              <li>Admins/librarians can time-out from Dashboard</li>
             </ul>
           </div>
         </div>
