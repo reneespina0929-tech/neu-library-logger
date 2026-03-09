@@ -103,9 +103,7 @@ export default function DashboardPage() {
             <h3 style={{ fontSize: 15, marginBottom: 1 }}>Currently Inside</h3>
             <p style={{ color: "var(--gray-400)", fontSize: 12 }}>Active library visitors</p>
           </div>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "var(--green-light)", color: "var(--green)", fontSize: 12, fontWeight: 600, padding: "3px 8px", borderRadius: 20 }}>
-            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--green)", animation: "pulse 1.5s infinite" }} /> Live
-          </span>
+          <span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--green)", animation: "pulse 1.5s infinite", display: "inline-block" }} />
         </div>
 
         {activeVisitors.length === 0 ? (
