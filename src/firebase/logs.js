@@ -10,8 +10,33 @@ import {
   serverTimestamp,
   where,
   limit,
+  getDocs,
 } from "firebase/firestore";
 import { db } from "./config";
+
+// Check if a student is already inside (active visit)
+export const checkActiveVisit = async (studentId) => {
+  const q = query(
+    collection(db, "logs"),
+    where("studentId", "==", studentId.toUpperCase()),
+    where("status", "==", "active"),
+    limit(1)
+  );
+  const snap = await getDocs(q);
+  return snap.empty ? null : { id: snap.docs[0].id, ...snap.docs[0].data() };
+};
+
+// Get past visits for a studentId (for name autosuggest)
+export const getStudentHistory = async (studentId) => {
+  const q = query(
+    collection(db, "logs"),
+    where("studentId", "==", studentId.toUpperCase()),
+    orderBy("timeIn", "desc"),
+    limit(1)
+  );
+  const snap = await getDocs(q);
+  return snap.empty ? null : { id: snap.docs[0].id, ...snap.docs[0].data() };
+};
 
 // Log a new library visit (time-in)
 export const timeIn = async (studentId, studentName, purpose, loggedBy, loggedByUid) => {

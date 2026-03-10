@@ -37,6 +37,13 @@ const icons = {
       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
     </svg>
   ),
+  admin: (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      <line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>
+    </svg>
+  ),
 };
 
 const pageTitles = {
@@ -44,6 +51,7 @@ const pageTitles = {
   "/time-in": "Log Visit",
   "/logs": "Visitor Logs",
   "/profile": "My Profile",
+  "/admin": "Manage Users",
 };
 
 export default function Layout() {
@@ -53,6 +61,7 @@ export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const isStaff = userProfile?.role === "admin" || userProfile?.role === "librarian";
+  const isAdmin = userProfile?.role === "admin";
   const pageTitle = pageTitles[location.pathname] || "LibraLog";
 
   const handleLogout = async () => {
@@ -68,6 +77,7 @@ export default function Layout() {
     { to: "/dashboard", label: "Dashboard", icon: icons.dashboard },
     { to: "/time-in", label: "Log Visit", icon: icons.visit },
     ...(isStaff ? [{ to: "/logs", label: "Logs", icon: icons.logs }] : []),
+    ...(isAdmin ? [{ to: "/admin", label: "Users", icon: icons.admin }] : []),
     { to: "/profile", label: "Profile", icon: icons.profile },
   ];
 
@@ -134,6 +144,19 @@ export default function Layout() {
               })}>
                 {icons.logs} All Visitor Logs
               </NavLink>
+              {isAdmin && (
+                <NavLink to="/admin" style={({ isActive }) => ({
+                  display: "flex", alignItems: "center", gap: 10,
+                  padding: "10px 12px", borderRadius: 8, marginBottom: 2, marginTop: 4,
+                  color: isActive ? "var(--gold)" : "rgba(201,151,43,0.75)",
+                  background: isActive ? "rgba(201,151,43,0.12)" : "rgba(201,151,43,0.06)",
+                  fontWeight: isActive ? 600 : 400, fontSize: 15,
+                  transition: "all 0.15s ease", textDecoration: "none",
+                  border: "1px solid rgba(201,151,43,0.15)",
+                })}>
+                  {icons.admin} Manage Users
+                </NavLink>
+              )}
             </>
           )}
         </nav>

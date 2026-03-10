@@ -1,6 +1,6 @@
 // src/pages/TimeInPage.jsx
-import { useState } from "react";
-import { timeIn } from "../firebase/logs";
+import { useState, useEffect, useRef } from "react";
+import { timeIn, checkActiveVisit, getStudentHistory } from "../firebase/logs";
 import { useAuth } from '../hooks/useAuth.jsx';
 import { purposeOptions } from "../utils/helpers";
 import toast from "react-hot-toast";
@@ -12,13 +12,45 @@ export default function TimeInPage() {
   const [loading, setLoading] = useState(false);
   const [lastLogged, setLastLogged] = useState(null);
   const [showScanner, setShowScanner] = useState(false);
+  const [duplicateWarning, setDuplicateWarning] = useState(null); // active visit if duplicate
+  const [nameSuggestion, setNameSuggestion] = useState(""); // autosuggest name
+  const debounceRef = useRef(null);
 
   const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
+
+  // When student ID reaches full length, check for duplicate + autosuggest name
+  useEffect(() => {
+    const digits = form.studentId.replace(/\D/g, "");
+    if (digits.length < 10) {
+      setDuplicateWarning(null);
+      setNameSuggestion("");
+      return;
+    }
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(async () => {
+      const [active, history] = await Promise.all([
+        checkActiveVisit(form.studentId),
+        getStudentHistory(form.studentId),
+      ]);
+      setDuplicateWarning(active);
+      // Autofill name only if field is empty
+      if (history?.studentName && !form.studentName.trim()) {
+        setNameSuggestion(history.studentName);
+      } else {
+        setNameSuggestion("");
+      }
+    }, 400);
+    return () => clearTimeout(debounceRef.current);
+  }, [form.studentId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.studentId.trim() || !form.studentName.trim() || !form.purpose) {
       toast.error("Please fill in all fields");
+      return;
+    }
+    if (duplicateWarning) {
+      toast.error(`${form.studentName} is already inside the library.`);
       return;
     }
     setLoading(true);
@@ -33,6 +65,8 @@ export default function TimeInPage() {
       setLastLogged({ ...form, time: new Date() });
       toast.success(`${form.studentName} has been logged in!`);
       setForm({ studentId: "", studentName: "", purpose: "" });
+      setDuplicateWarning(null);
+      setNameSuggestion("");
       // Focus back to ID field for quick consecutive entries
       setTimeout(() => {
         document.getElementById("studentId")?.focus();
@@ -115,7 +149,45 @@ export default function TimeInPage() {
                 onChange={val => setForm(f => ({ ...f, studentId: val }))}
                 required
               />
-              <Field label="Full Name" value={form.studentName} onChange={set("studentName")} placeholder="e.g. Juan Dela Cruz" required />
+
+              {/* Duplicate warning */}
+              {duplicateWarning && (
+                <div style={{ background: "rgba(217,57,43,0.08)", border: "1px solid rgba(217,57,43,0.3)", borderRadius: 8, padding: "10px 14px", display: "flex", alignItems: "center", gap: 8 }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--red)" strokeWidth="2" style={{ flexShrink: 0 }}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  <span style={{ fontSize: 13, color: "var(--red)", fontWeight: 500 }}>
+                    This student is already inside the library since {duplicateWarning.timeIn?.toDate ? duplicateWarning.timeIn.toDate().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "earlier"}.
+                  </span>
+                </div>
+              )}
+
+              {/* Name field with autosuggest */}
+              <div>
+                <label style={labelStyle}>Full Name <span style={{ color: "var(--red)" }}>*</span></label>
+                <div style={{ position: "relative" }}>
+                  <input
+                    type="text" value={form.studentName}
+                    onChange={set("studentName")}
+                    placeholder="e.g. Juan Dela Cruz"
+                    style={inputStyle}
+                    onFocus={e => e.target.style.borderColor = "var(--navy)"}
+                    onBlur={e => e.target.style.borderColor = "var(--gray-200)"}
+                  />
+                  {nameSuggestion && !form.studentName.trim() && (
+                    <button
+                      onClick={() => { setForm(f => ({ ...f, studentName: nameSuggestion })); setNameSuggestion(""); }}
+                      style={{
+                        position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)",
+                        background: "var(--navy)", color: "white", fontSize: 11, fontWeight: 600,
+                        padding: "3px 10px", borderRadius: 6, cursor: "pointer", whiteSpace: "nowrap",
+                        maxWidth: "60%", overflow: "hidden", textOverflow: "ellipsis",
+                      }}
+                      title={`Use: ${nameSuggestion}`}
+                    >
+                      Use: {nameSuggestion}
+                    </button>
+                  )}
+                </div>
+              </div>
               <div>
                 <label style={labelStyle}>Purpose of Visit <span style={{ color: "var(--red)" }}>*</span></label>
                 <select value={form.purpose} onChange={set("purpose")} style={{ ...inputStyle, cursor: "pointer", color: form.purpose ? "var(--gray-800)" : "var(--gray-400)" }}>
@@ -191,7 +263,7 @@ const StudentIdField = ({ id, value, onChange, required }) => {
     // Apply XX-XXXXX-XXX pattern
     if (digits.length <= 2) return digits;
     if (digits.length <= 7) return `${digits.slice(0, 2)}-${digits.slice(2)}`;
-    return `${digits.slice(0, 2)}-${digits.slice(2, 7)}-${digits.slice(7, 10)}`;
+    return `${digits.slice(0, 2)}-${digits.slice(2, 7)}-${digits.slice(7, 11)}`;
   };
 
   const handleChange = (e) => {

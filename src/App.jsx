@@ -8,6 +8,7 @@ import DashboardPage from "./pages/DashboardPage";
 import LogsPage from "./pages/LogsPage";
 import TimeInPage from "./pages/TimeInPage";
 import ProfilePage from "./pages/ProfilePage";
+import AdminPage from "./pages/AdminPage";
 import Layout from "./components/layout/Layout";
 
 const ProtectedRoute = ({ children }) => {
@@ -74,6 +75,7 @@ function App() {
             <Route path="time-in" element={<TimeInPage />} />
             <Route path="logs" element={<LogsPage />} />
             <Route path="profile" element={<ProfilePage />} />
+            <Route path="admin" element={<AdminPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
