@@ -11,7 +11,7 @@ const LogoIcon = ({ size = 32 }) => (
     width={size}
     height={size}
     alt="NEU Logo"
-    style={{ objectFit: "contain", borderRadius: "50%", background: "white", padding: 2, flexShrink: 0 }}
+    style={{ objectFit: "contain", flexShrink: 0, display: "block" }}
   />
 );
 
@@ -104,7 +104,7 @@ export default function Layout() {
           padding: "24px 20px", borderBottom: "1px solid rgba(255,255,255,0.07)",
           display: "flex", alignItems: "center", gap: 10,
         }}>
-          <LogoIcon size={36} />
+          <LogoIcon size={48} />
           <div>
             <div style={{ fontFamily: "'Poppins', sans-serif", color: "var(--gold)", fontSize: 18, fontWeight: 700, lineHeight: 1.1 }}>LibraLog</div>
             <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase" }}>NEU Library</div>
