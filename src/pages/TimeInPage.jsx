@@ -46,11 +46,13 @@ export default function TimeInPage() {
     <div className="fade-in">
       <style>{`
         .timein-layout { display: flex; gap: 20px; align-items: flex-start; }
-        .timein-form { flex: 1 1 360px; background: white; border-radius: 12px; box-shadow: var(--shadow-sm); border: 1px solid var(--gray-100); overflow: hidden; }
+        .timein-form { flex: 1 1 360px; background: white; border-radius: 12px; box-shadow: var(--shadow-sm); border: 1px solid var(--gray-100); overflow: visible; }
         .timein-side { flex: 1 1 260px; display: flex; flex-direction: column; gap: 14px; }
         @media (max-width: 768px) {
           .timein-layout { flex-direction: column; }
+          .timein-form { width: 100%; overflow: visible; }
           .timein-side { width: 100%; }
+          .timein-form-inner { padding-bottom: 24px !important; }
         }
       `}</style>
 
@@ -67,7 +69,7 @@ export default function TimeInPage() {
             <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 13, marginTop: 2 }}>Time-in a student or visitor</p>
           </div>
 
-          <div style={{ padding: 20 }}>
+          <div className="timein-form-inner" style={{ padding: 20 }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <Field id="studentId" label="Student ID Number" value={form.studentId} onChange={set("studentId")} placeholder="e.g. 2023-00001" required />
               <Field label="Full Name" value={form.studentName} onChange={set("studentName")} placeholder="e.g. Juan Dela Cruz" required />
