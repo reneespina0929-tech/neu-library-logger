@@ -5,12 +5,7 @@ import { registerUser } from "../firebase/auth";
 import toast from "react-hot-toast";
 
 const LogoIcon = ({ size = 40 }) => (
-  <svg width={size} height={size} viewBox="0 0 40 40" fill="none">
-    <rect width="40" height="40" rx="10" fill="#c9972b" />
-    <path d="M10 10h8v20h-8z" fill="white" opacity="0.9" />
-    <path d="M20 10h10v2H20zm0 5h10v2H20zm0 5h10v2H20zm0 5h7v2h-7z" fill="white" opacity="0.7" />
-    <path d="M8 30h24v2H8z" fill="white" opacity="0.5" />
-  </svg>
+  <img src="/neu-logo.png" width={size} height={size} alt="NEU Logo" style={{ objectFit: "contain" }} />
 );
 
 export default function RegisterPage() {
