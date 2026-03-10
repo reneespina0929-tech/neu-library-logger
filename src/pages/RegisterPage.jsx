@@ -1,4 +1,5 @@
 // src/pages/RegisterPage.jsx
+import neuLogo from "../assets/neu-logo.png";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { registerUser } from "../firebase/auth";
