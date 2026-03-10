@@ -1,4 +1,5 @@
 // src/App.jsx
+import neuLogo from "../assets/neuLogo";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider, useAuth } from './hooks/useAuth.jsx';
@@ -42,13 +43,8 @@ const LoadingScreen = () => (
 );
 
 const LogoIcon = ({ size = 32 }) => (
-  <img
-    src="/neu-logo.png"
-    width={size}
-    height={size}
-    alt="NEU Logo"
-    style={{ objectFit: "contain", borderRadius: "50%", background: "white", padding: 2, flexShrink: 0 }}
-  />
+  <img src={neuLogo} width={size} height={size} alt="NEU Logo"
+    style={{ objectFit: "contain", display: "block" }} />
 );
 
 function App() {

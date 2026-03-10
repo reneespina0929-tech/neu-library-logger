@@ -4,15 +4,11 @@ import { useState } from "react";
 import { useAuth } from '../../hooks/useAuth.jsx';
 import { logoutUser } from "../../firebase/auth";
 import toast from "react-hot-toast";
+import neuLogo from "../../assets/neuLogo";
 
 const LogoIcon = ({ size = 32 }) => (
-  <img
-    src="/neu-logo.png"
-    width={size}
-    height={size}
-    alt="NEU Logo"
-    style={{ objectFit: "contain", flexShrink: 0, display: "block" }}
-  />
+  <img src={neuLogo} width={size} height={size} alt="NEU Logo"
+    style={{ objectFit: "contain", flexShrink: 0, display: "block" }} />
 );
 
 const icons = {
