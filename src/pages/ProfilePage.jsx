@@ -1,5 +1,5 @@
 // src/pages/ProfilePage.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from '../hooks/useAuth.jsx';
 import { subscribeLogs } from "../firebase/logs";
 import { formatTimestamp, formatDate, formatDuration } from "../utils/helpers";
@@ -7,6 +7,7 @@ import { updateProfile } from "firebase/auth";
 import { doc, updateDoc } from "firebase/firestore";
 import { auth, db } from "../firebase/config";
 import toast from "react-hot-toast";
+import QRCode from "qrcode";
 
 export default function ProfilePage() {
   const { user, userProfile } = useAuth();
@@ -15,6 +16,8 @@ export default function ProfilePage() {
   const [displayName, setDisplayName] = useState(user?.displayName || "");
   const [studentId, setStudentId] = useState(userProfile?.studentId || "");
   const [saving, setSaving] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState(null);
+  const [showQr, setShowQr] = useState(false);
 
   const initials = (user?.displayName || user?.email || "U")
     .split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
@@ -22,6 +25,18 @@ export default function ProfilePage() {
   useEffect(() => {
     if (userProfile?.studentId) setStudentId(userProfile.studentId);
   }, [userProfile]);
+
+  // Generate QR code whenever studentId or displayName changes
+  useEffect(() => {
+    const id = userProfile?.studentId || studentId;
+    const name = user?.displayName || "";
+    if (!id) { setQrDataUrl(null); return; }
+    // Encode as "studentId|studentName" so scanner auto-fills both fields
+    QRCode.toDataURL(`${id}|${name}`, {
+      width: 240, margin: 2,
+      color: { dark: "#0d1f3c", light: "#ffffff" },
+    }).then(setQrDataUrl).catch(console.error);
+  }, [userProfile?.studentId, user?.displayName]);
 
   useEffect(() => {
     if (!user) return;
@@ -126,7 +141,56 @@ export default function ProfilePage() {
             <StatMini label="Total Visits" value={totalVisits} />
             <StatMini label="Completed" value={completedVisits} />
           </div>
+
+          {/* QR Code section */}
+          <div style={{ borderTop: "1px solid var(--gray-100)", padding: "16px 20px" }}>
+            <div style={{ fontSize: 11, fontWeight: 600, color: "var(--gray-400)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>
+              My Library QR Code
+            </div>
+            {!userProfile?.studentId ? (
+              <div style={{ background: "var(--gray-50)", border: "1px dashed var(--gray-200)", borderRadius: 10, padding: "16px 12px", textAlign: "center" }}>
+                <p style={{ fontSize: 12, color: "var(--gray-400)", marginBottom: 8 }}>Set your Student ID to generate your personal QR code</p>
+                <button onClick={() => setEditing(true)} style={{ fontSize: 12, color: "var(--navy)", fontWeight: 600, textDecoration: "underline", cursor: "pointer", background: "none" }}>
+                  Add Student ID
+                </button>
+              </div>
+            ) : qrDataUrl ? (
+              <div style={{ textAlign: "center" }}>
+                <div style={{ display: "inline-block", padding: 10, background: "white", border: "2px solid var(--gray-100)", borderRadius: 12, cursor: "pointer" }} onClick={() => setShowQr(true)}>
+                  <img src={qrDataUrl} alt="My QR Code" style={{ width: 120, height: 120, display: "block" }} />
+                </div>
+                <p style={{ fontSize: 11, color: "var(--gray-400)", marginTop: 8 }}>Tap to enlarge · Show this to staff when entering</p>
+                <button
+                  onClick={() => {
+                    const a = document.createElement("a");
+                    a.href = qrDataUrl;
+                    a.download = `libraqr-${userProfile.studentId}.png`;
+                    a.click();
+                  }}
+                  style={{ marginTop: 8, display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, color: "var(--navy)", fontWeight: 600, padding: "6px 12px", border: "1px solid var(--gray-200)", borderRadius: 6, cursor: "pointer", background: "white" }}
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Save QR
+                </button>
+              </div>
+            ) : null}
+          </div>
         </div>
+
+        {/* QR Fullscreen Modal */}
+        {showQr && qrDataUrl && (
+          <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }} onClick={() => setShowQr(false)}>
+            <div style={{ background: "white", borderRadius: 20, padding: 32, textAlign: "center", maxWidth: 320, width: "100%" }} onClick={e => e.stopPropagation()}>
+              <div style={{ fontFamily: "'Poppins',sans-serif", fontWeight: 700, color: "var(--navy)", fontSize: 16, marginBottom: 4 }}>
+                {user?.displayName}
+              </div>
+              <div style={{ color: "var(--gray-400)", fontSize: 13, marginBottom: 20 }}>{userProfile?.studentId}</div>
+              <img src={qrDataUrl} alt="QR Code" style={{ width: 220, height: 220, display: "block", margin: "0 auto" }} />
+              <p style={{ fontSize: 12, color: "var(--gray-400)", marginTop: 16 }}>Show this to library staff to time in</p>
+              <button onClick={() => setShowQr(false)} style={{ marginTop: 16, width: "100%", padding: "10px", background: "var(--navy)", color: "white", fontWeight: 600, fontSize: 14, borderRadius: 8, cursor: "pointer" }}>Close</button>
+            </div>
+          </div>
+        )}
 
         {/* Visit History */}
         <div className="profile-history">
