@@ -6,13 +6,7 @@ import { loginUser, resetPassword } from "../firebase/auth";
 import toast from "react-hot-toast";
 
 const LogoIcon = ({ size = 40 }) => (
-  <img
-    src="/neu-logo.png"
-    width={size}
-    height={size}
-    alt="NEU Logo"
-    style={{ objectFit: "contain", borderRadius: "50%", background: "white", padding: 3, flexShrink: 0 }}
-  />
+  <img src="/neu-logo.png" width={size} height={size} alt="NEU Logo" style={{ objectFit: "contain" }} />
 );
 
 export default function LoginPage() {

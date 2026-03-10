@@ -43,8 +43,7 @@ const LoadingScreen = () => (
 );
 
 const LogoIcon = ({ size = 32 }) => (
-  <img src={neuLogo} width={size} height={size} alt="NEU Logo"
-    style={{ objectFit: "contain", display: "block" }} />
+  <img src="/neu-logo.png" width={size} height={size} alt="NEU Logo" style={{ objectFit: "contain" }} />
 );
 
 function App() {

@@ -8,8 +8,7 @@ import toast from "react-hot-toast";
 
 
 const LogoIcon = ({ size = 32 }) => (
-  <img src={neuLogo} width={size} height={size} alt="NEU Logo"
-    style={{ objectFit: "contain", flexShrink: 0, display: "block" }} />
+  <img src="/neu-logo.png" width={size} height={size} alt="NEU Logo" style={{ objectFit: "contain" }} />
 );
 
 const icons = {
