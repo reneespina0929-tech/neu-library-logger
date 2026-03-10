@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { useAuth } from '../hooks/useAuth.jsx';
 import { subscribeLogs } from "../firebase/logs";
 import { formatTimestamp, formatDate, formatDuration } from "../utils/helpers";
-import { updateProfile } from "firebase/auth";
+import { updateProfile, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
 import { doc, updateDoc } from "firebase/firestore";
 import { auth, db } from "../firebase/config";
 import toast from "react-hot-toast";
@@ -18,6 +18,12 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState(null);
   const [showQr, setShowQr] = useState(false);
+
+  // Change password state
+  const [showPwForm, setShowPwForm] = useState(false);
+  const [pwForm, setPwForm] = useState({ current: "", next: "", confirm: "" });
+  const [pwLoading, setPwLoading] = useState(false);
+  const [showPw, setShowPw] = useState({ current: false, next: false, confirm: false });
 
   const initials = (user?.displayName || user?.email || "U")
     .split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
@@ -68,6 +74,34 @@ export default function ProfilePage() {
       toast.error("Failed to update profile");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    const { current, next, confirm } = pwForm;
+    if (!current || !next || !confirm) { toast.error("Please fill in all fields."); return; }
+    if (next.length < 6) { toast.error("New password must be at least 6 characters."); return; }
+    if (next !== confirm) { toast.error("New passwords don't match."); return; }
+    setPwLoading(true);
+    try {
+      // Re-authenticate first (Firebase requires this for sensitive changes)
+      const credential = EmailAuthProvider.credential(user.email, current);
+      await reauthenticateWithCredential(auth.currentUser, credential);
+      await updatePassword(auth.currentUser, next);
+      toast.success("Password changed successfully!");
+      setShowPwForm(false);
+      setPwForm({ current: "", next: "", confirm: "" });
+    } catch (err) {
+      const code = err.code || "";
+      if (code === "auth/wrong-password" || code === "auth/invalid-credential") {
+        toast.error("Current password is incorrect.");
+      } else if (code === "auth/too-many-requests") {
+        toast.error("Too many attempts. Please wait and try again.");
+      } else {
+        toast.error("Failed to change password. Try again.");
+      }
+    } finally {
+      setPwLoading(false);
     }
   };
 
@@ -140,6 +174,55 @@ export default function ProfilePage() {
           <div style={{ borderTop: "1px solid var(--gray-100)", padding: "14px 20px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             <StatMini label="Total Visits" value={totalVisits} />
             <StatMini label="Completed" value={completedVisits} />
+          </div>
+
+          {/* Change Password */}
+          <div style={{ borderTop: "1px solid var(--gray-100)", padding: "14px 20px" }}>
+            {!showPwForm ? (
+              <button
+                onClick={() => setShowPwForm(true)}
+                style={{ width: "100%", padding: "8px", background: "var(--gray-50)", border: "1px solid var(--gray-200)", color: "var(--gray-700)", fontWeight: 600, fontSize: 13, borderRadius: 8, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                Change Password
+              </button>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2 }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: "var(--gray-600)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Change Password</span>
+                  <button onClick={() => { setShowPwForm(false); setPwForm({ current: "", next: "", confirm: "" }); }} style={{ background: "none", color: "var(--gray-400)", fontSize: 18, cursor: "pointer", lineHeight: 1 }}>×</button>
+                </div>
+                {[
+                  { key: "current", label: "Current Password" },
+                  { key: "next",    label: "New Password" },
+                  { key: "confirm", label: "Confirm New Password" },
+                ].map(({ key, label }) => (
+                  <div key={key} style={{ position: "relative" }}>
+                    <input
+                      type={showPw[key] ? "text" : "password"}
+                      placeholder={label}
+                      value={pwForm[key]}
+                      onChange={e => setPwForm(f => ({ ...f, [key]: e.target.value }))}
+                      onKeyDown={e => e.key === "Enter" && handleChangePassword()}
+                      style={{ width: "100%", padding: "9px 36px 9px 12px", border: "1px solid var(--gray-200)", borderRadius: 8, fontSize: 13, outline: "none", fontFamily: "'Poppins',sans-serif" }}
+                      onFocus={e => e.target.style.borderColor = "var(--navy)"}
+                      onBlur={e => e.target.style.borderColor = "var(--gray-200)"}
+                    />
+                    <button type="button" onClick={() => setShowPw(s => ({ ...s, [key]: !s[key] }))}
+                      style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", color: "var(--gray-400)", padding: 0, cursor: "pointer", lineHeight: 1 }}>
+                      {showPw[key]
+                        ? <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                        : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                      }
+                    </button>
+                  </div>
+                ))}
+                <button onClick={handleChangePassword} disabled={pwLoading}
+                  style={{ padding: "9px", background: pwLoading ? "rgba(13,31,60,0.4)" : "var(--navy)", color: "white", fontWeight: 600, fontSize: 13, borderRadius: 8, cursor: pwLoading ? "not-allowed" : "pointer", width: "100%" }}>
+                  {pwLoading ? "Saving..." : "Update Password"}
+                </button>
+              </div>
+            )}
           </div>
 
           {/* QR Code section */}
