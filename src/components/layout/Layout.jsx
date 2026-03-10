@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useAuth } from '../../hooks/useAuth.jsx';
 import { logoutUser } from "../../firebase/auth";
 import toast from "react-hot-toast";
-import neuLogo from "../../assets/neuLogo";
+import neuLogo from "../../assets/NeuLogo.js";
 
 const LogoIcon = ({ size = 32 }) => (
   <img src={neuLogo} width={size} height={size} alt="NEU Logo"
