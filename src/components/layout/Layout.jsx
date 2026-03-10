@@ -1,5 +1,5 @@
 // src/components/layout/Layout.jsx
-import neuLogo from "../../assets/neu-logo.png";
+// import neuLogo from "../../assets/neu-logo.png";
 import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from '../../hooks/useAuth.jsx';

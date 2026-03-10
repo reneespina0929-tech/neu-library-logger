@@ -1,5 +1,4 @@
 // src/App.jsx
-import neuLogo from "../assets/neu-logo.png";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider, useAuth } from './hooks/useAuth.jsx';
