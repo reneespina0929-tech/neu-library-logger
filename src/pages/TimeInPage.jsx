@@ -109,7 +109,12 @@ export default function TimeInPage() {
 
           <div className="timein-form-inner" style={{ padding: 20 }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <Field id="studentId" label="Student ID Number" value={form.studentId} onChange={set("studentId")} placeholder="e.g. 2023-00001" required />
+              <StudentIdField
+                id="studentId"
+                value={form.studentId}
+                onChange={val => setForm(f => ({ ...f, studentId: val }))}
+                required
+              />
               <Field label="Full Name" value={form.studentName} onChange={set("studentName")} placeholder="e.g. Juan Dela Cruz" required />
               <div>
                 <label style={labelStyle}>Purpose of Visit <span style={{ color: "var(--red)" }}>*</span></label>
@@ -176,6 +181,52 @@ const inputStyle = {
   fontSize: 16, color: "var(--gray-800)", outline: "none",
   transition: "border-color 0.15s",
   background: "var(--white)",
+};
+
+// Auto-formats input as XX-XXXXX-XXX (digits only, dashes inserted automatically)
+const StudentIdField = ({ id, value, onChange, required }) => {
+  const format = (raw) => {
+    // Strip everything except digits
+    const digits = raw.replace(/\D/g, "");
+    // Apply XX-XXXXX-XXX pattern
+    if (digits.length <= 2) return digits;
+    if (digits.length <= 7) return `${digits.slice(0, 2)}-${digits.slice(2)}`;
+    return `${digits.slice(0, 2)}-${digits.slice(2, 7)}-${digits.slice(7, 10)}`;
+  };
+
+  const handleChange = (e) => {
+    const formatted = format(e.target.value);
+    onChange(formatted);
+  };
+
+  const handleKeyDown = (e) => {
+    // Allow backspace to remove the dash naturally
+    if (e.key === "Backspace" && (value.endsWith("-"))) {
+      e.preventDefault();
+      onChange(value.slice(0, -1));
+    }
+  };
+
+  return (
+    <div>
+      <label style={labelStyle}>
+        Student ID Number {required && <span style={{ color: "var(--red)" }}>*</span>}
+      </label>
+      <input
+        id={id}
+        type="text"
+        inputMode="numeric"
+        value={value}
+        onChange={handleChange}
+        onKeyDown={handleKeyDown}
+        placeholder="24-12781-942"
+        maxLength={11}
+        style={inputStyle}
+        onFocus={e => e.target.style.borderColor = "var(--navy)"}
+        onBlur={e => e.target.style.borderColor = "var(--gray-200)"}
+      />
+    </div>
+  );
 };
 
 const Field = ({ id, label, value, onChange, placeholder, required }) => (
