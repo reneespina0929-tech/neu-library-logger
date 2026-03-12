@@ -1,12 +1,17 @@
 // src/pages/RegisterPage.jsx
-// import neuLogo from "../assets/neu-logo.png";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { registerUser } from "../firebase/auth";
 import toast from "react-hot-toast";
 
 const LogoIcon = ({ size = 40 }) => (
-  <img src="/neu-logo.png" width={size} height={size} alt="NEU Logo" style={{ objectFit: "contain" }} />
+  <img
+    src="/neu-logo.png"
+    width={size}
+    height={size}
+    alt="NEU Logo"
+    style={{ objectFit: "contain", display: "block" }}
+  />
 );
 
 export default function RegisterPage() {
@@ -58,11 +63,17 @@ export default function RegisterPage() {
   return (
     <div style={{
       minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
-      background: "linear-gradient(135deg, var(--navy) 0%, #1a2f52 60%, #0d1f3c 100%)",
+      position: "relative",
+      backgroundImage: "url('/login-bg.png?v=3')",
+      backgroundSize: "cover",
+      backgroundPosition: "center top",
+      backgroundColor: "#0d1f3c",
       padding: 20,
     }}>
-      <div style={{ width: "100%", maxWidth: 400 }} className="fade-in">
-        <div style={{ textAlign: "center", marginBottom: 28 }}>
+      {/* Dark overlay */}
+      <div style={{ position: "absolute", inset: 0, background: "rgba(13,31,60,0.55)", zIndex: 0 }} />
+      <div style={{ width: "100%", maxWidth: 400, position: "relative", zIndex: 1 }} className="fade-in">
+        <div style={{ textAlign: "center", marginBottom: 28, display: "flex", flexDirection: "column", alignItems: "center" }}>
           <LogoIcon size={48} />
           <h1 style={{
             color: "var(--gold)", fontFamily: "'Poppins', sans-serif",
