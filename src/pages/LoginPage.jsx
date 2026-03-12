@@ -97,7 +97,7 @@ export default function LoginPage() {
       }}>
         <div style={{ width: "100%", maxWidth: 380 }} className="fade-in">
           {/* Logo */}
-          <div style={{ textAlign: "center", marginBottom: 36 }}>
+          <div style={{ textAlign: "center", marginBottom: 36, display: "flex", flexDirection: "column", alignItems: "center" }}>
             <LogoIcon size={52} />
             <h1 style={{ color: "var(--gold)", fontFamily: "'Poppins', sans-serif", fontSize: 28, marginTop: 12, marginBottom: 4 }}>LibraLog</h1>
             <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 13 }}>New Era University Library System</p>
