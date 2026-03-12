@@ -77,14 +77,15 @@ export default function LoginPage() {
     <div style={{
       minHeight: "100vh",
       display: "flex",
+      justifyContent: "center",
       position: "relative",
       backgroundImage: "url('/login-bg.png?v=3')",
       backgroundSize: "cover",
       backgroundPosition: "center top",
       backgroundColor: "#0d1f3c",
     }}>
-      {/* Gradient overlay — heavy on left for readability, fades right */}
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(100deg, rgba(13,31,60,0.96) 0%, rgba(13,31,60,0.85) 38%, rgba(13,31,60,0.35) 65%, rgba(13,31,60,0.15) 100%)", zIndex: 0 }} />
+      {/* Dark overlay */}
+      <div style={{ position: "absolute", inset: 0, background: "rgba(13,31,60,0.55)", zIndex: 0 }} />
 
       {/* Left panel — fixed width, vertically centered */}
       <div style={{
@@ -94,6 +95,7 @@ export default function LoginPage() {
         padding: "40px 32px",
         position: "relative", zIndex: 1,
         minHeight: "100vh",
+        margin: "0 auto",
       }}>
         <div style={{ width: "100%", maxWidth: 380 }} className="fade-in">
           {/* Logo */}
@@ -211,14 +213,6 @@ export default function LoginPage() {
           <p style={{ color: "rgba(255,255,255,0.2)", fontSize: 11, textAlign: "center", marginTop: 20 }}>
             © {new Date().getFullYear()} New Era University · All rights reserved
           </p>
-        </div>
-      </div>
-
-      {/* Right panel — spacer so building photo is visible on desktop */}
-      <div style={{ flex: 1, position: "relative", zIndex: 1, display: "flex", alignItems: "flex-end", justifyContent: "flex-end", padding: "0 48px 48px" }} className="desktop-right">
-        <div style={{ background: "rgba(13,31,60,0.55)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 12, padding: "14px 20px" }}>
-          <p style={{ color: "var(--gold)", fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 3 }}>New Era University</p>
-          <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, lineHeight: 1.5 }}>NEU Library · Digital Visit Logger</p>
         </div>
       </div>
 
