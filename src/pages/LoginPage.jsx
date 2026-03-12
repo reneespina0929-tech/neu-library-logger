@@ -1,12 +1,17 @@
 // src/pages/LoginPage.jsx
-// import neuLogo from "../assets/neu-logo.png";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { loginUser, resetPassword } from "../firebase/auth";
 import toast from "react-hot-toast";
 
 const LogoIcon = ({ size = 40 }) => (
-  <img src="/neu-logo.png" width={size} height={size} alt="NEU Logo" style={{ objectFit: "contain" }} />
+  <img
+    src="/neu-logo.png"
+    width={size}
+    height={size}
+    alt="NEU Logo"
+    style={{ objectFit: "contain", display: "block" }}
+  />
 );
 
 export default function LoginPage() {
@@ -71,13 +76,21 @@ export default function LoginPage() {
   return (
     <div style={{
       minHeight: "100vh", display: "flex",
-      background: "linear-gradient(135deg, var(--navy) 0%, #1a2f52 60%, #0d1f3c 100%)",
+      position: "relative",
+      backgroundImage: "url('/login-bg.png?v=2')",
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundColor: "#0d1f3c",
     }}>
+      {/* Dark overlay */}
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(105deg, rgba(13,31,60,0.92) 0%, rgba(13,31,60,0.75) 45%, rgba(13,31,60,0.30) 100%)", zIndex: 0 }} />
+
       {/* Left panel */}
       <div style={{
         flex: 1, display: "flex", flexDirection: "column",
         alignItems: "center", justifyContent: "center",
         padding: 40, maxWidth: 480, margin: "0 auto",
+        position: "relative", zIndex: 1,
       }}>
         <div style={{ width: "100%", maxWidth: 380 }} className="fade-in">
           {/* Logo */}
@@ -198,15 +211,12 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Right decorative panel */}
-      <div style={{ flex: 1, display: "none", background: "rgba(201,151,43,0.06)", borderLeft: "1px solid rgba(255,255,255,0.04)", alignItems: "center", justifyContent: "center", padding: 60 }} className="desktop-right">
-        <div style={{ textAlign: "center", color: "rgba(255,255,255,0.6)" }}>
-          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="rgba(201,151,43,0.6)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: 20 }}>
-            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-          </svg>
-          <h2 style={{ color: "var(--gold)", fontFamily: "'Poppins', sans-serif", fontSize: 26, marginBottom: 12 }}>NEU Library Visit Logger</h2>
-          <p style={{ fontSize: 14, lineHeight: 1.7, maxWidth: 300, margin: "0 auto", opacity: 0.6 }}>
-            Track student visits, manage library attendance, and generate reports — all in one place.
+      {/* Right panel — visible on desktop, shows building caption over the photo */}
+      <div style={{ flex: 1, display: "none", alignItems: "flex-end", justifyContent: "flex-start", padding: "0 60px 60px", position: "relative", zIndex: 1 }} className="desktop-right">
+        <div style={{ background: "rgba(13,31,60,0.55)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 14, padding: "20px 24px", maxWidth: 340 }}>
+          <p style={{ color: "var(--gold)", fontSize: 13, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 6 }}>New Era University</p>
+          <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 12, lineHeight: 1.6 }}>
+            NEU Library · Digital Visit Logger
           </p>
         </div>
       </div>
