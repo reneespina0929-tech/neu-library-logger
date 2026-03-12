@@ -75,22 +75,25 @@ export default function LoginPage() {
 
   return (
     <div style={{
-      minHeight: "100vh", display: "flex",
+      minHeight: "100vh",
+      display: "flex",
       position: "relative",
-      backgroundImage: "url('/login-bg.png?v=2')",
+      backgroundImage: "url('/login-bg.png?v=3')",
       backgroundSize: "cover",
-      backgroundPosition: "center",
+      backgroundPosition: "center top",
       backgroundColor: "#0d1f3c",
     }}>
-      {/* Dark overlay */}
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(105deg, rgba(13,31,60,0.92) 0%, rgba(13,31,60,0.75) 45%, rgba(13,31,60,0.30) 100%)", zIndex: 0 }} />
+      {/* Gradient overlay — heavy on left for readability, fades right */}
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(100deg, rgba(13,31,60,0.96) 0%, rgba(13,31,60,0.85) 38%, rgba(13,31,60,0.35) 65%, rgba(13,31,60,0.15) 100%)", zIndex: 0 }} />
 
-      {/* Left panel */}
+      {/* Left panel — fixed width, vertically centered */}
       <div style={{
-        flex: 1, display: "flex", flexDirection: "column",
+        width: "100%", maxWidth: 460,
+        display: "flex", flexDirection: "column",
         alignItems: "center", justifyContent: "center",
-        padding: 40, maxWidth: 480, margin: "0 auto",
+        padding: "40px 32px",
         position: "relative", zIndex: 1,
+        minHeight: "100vh",
       }}>
         <div style={{ width: "100%", maxWidth: 380 }} className="fade-in">
           {/* Logo */}
@@ -211,18 +214,16 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Right panel — visible on desktop, shows building caption over the photo */}
-      <div style={{ flex: 1, display: "none", alignItems: "flex-end", justifyContent: "flex-start", padding: "0 60px 60px", position: "relative", zIndex: 1 }} className="desktop-right">
-        <div style={{ background: "rgba(13,31,60,0.55)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 14, padding: "20px 24px", maxWidth: 340 }}>
-          <p style={{ color: "var(--gold)", fontSize: 13, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 6 }}>New Era University</p>
-          <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 12, lineHeight: 1.6 }}>
-            NEU Library · Digital Visit Logger
-          </p>
+      {/* Right panel — spacer so building photo is visible on desktop */}
+      <div style={{ flex: 1, position: "relative", zIndex: 1, display: "flex", alignItems: "flex-end", justifyContent: "flex-end", padding: "0 48px 48px" }} className="desktop-right">
+        <div style={{ background: "rgba(13,31,60,0.55)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 12, padding: "14px 20px" }}>
+          <p style={{ color: "var(--gold)", fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 3 }}>New Era University</p>
+          <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, lineHeight: 1.5 }}>NEU Library · Digital Visit Logger</p>
         </div>
       </div>
 
       <style>{`
-        @media (min-width: 900px) { .desktop-right { display: flex !important; } }
+        @media (max-width: 768px) { .desktop-right { display: none !important; } }
       `}</style>
     </div>
   );
