@@ -19,30 +19,38 @@ export default function ProfilePage() {
   const [qrDataUrl, setQrDataUrl] = useState(null);
   const [showQr, setShowQr] = useState(false);
 
+  // Local state that updates immediately on save (no refresh needed)
+  const [localName, setLocalName] = useState(user?.displayName || "");
+  const [localStudentId, setLocalStudentId] = useState(userProfile?.studentId || "");
+
   // Change password state
   const [showPwForm, setShowPwForm] = useState(false);
   const [pwForm, setPwForm] = useState({ current: "", next: "", confirm: "" });
   const [pwLoading, setPwLoading] = useState(false);
   const [showPw, setShowPw] = useState({ current: false, next: false, confirm: false });
 
-  const initials = (user?.displayName || user?.email || "U")
-    .split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
+  const initials = localName
+    .split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) || "U";
+
+  // Sync from auth/firestore on first load
+  useEffect(() => {
+    if (user?.displayName) { setDisplayName(user.displayName); setLocalName(user.displayName); }
+  }, [user?.displayName]);
 
   useEffect(() => {
-    if (userProfile?.studentId) setStudentId(userProfile.studentId);
-  }, [userProfile]);
+    if (userProfile?.studentId) { setStudentId(userProfile.studentId); setLocalStudentId(userProfile.studentId); }
+  }, [userProfile?.studentId]);
 
   // Generate QR code whenever studentId or displayName changes
   useEffect(() => {
-    const id = userProfile?.studentId || studentId;
-    const name = user?.displayName || "";
+    const id = localStudentId;
+    const name = localName;
     if (!id) { setQrDataUrl(null); return; }
-    // Encode as "studentId|studentName" so scanner auto-fills both fields
     QRCode.toDataURL(`${id}|${name}`, {
       width: 240, margin: 2,
       color: { dark: "#0d1f3c", light: "#ffffff" },
     }).then(setQrDataUrl).catch(console.error);
-  }, [userProfile?.studentId, user?.displayName]);
+  }, [localStudentId, localName]);
 
   useEffect(() => {
     if (!user) return;
@@ -68,6 +76,9 @@ export default function ProfilePage() {
         displayName: displayName.trim(),
         studentId: studentId.trim().toUpperCase(),
       });
+      // Update local display state immediately — no refresh needed
+      setLocalName(displayName.trim());
+      setLocalStudentId(studentId.trim().toUpperCase());
       toast.success("Profile updated!");
       setEditing(false);
     } catch {
@@ -142,7 +153,7 @@ export default function ProfilePage() {
             {editing ? (
               <input value={displayName} onChange={e => setDisplayName(e.target.value)} style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", color: "white", padding: "6px 10px", borderRadius: 6, fontSize: 15, outline: "none", textAlign: "center", width: "100%" }} />
             ) : (
-              <h2 style={{ color: "white", fontFamily: "'Poppins', sans-serif", fontSize: 17 }}>{user?.displayName || "User"}</h2>
+              <h2 style={{ color: "white", fontFamily: "'Poppins', sans-serif", fontSize: 17 }}>{localName || "User"}</h2>
             )}
             <span style={{ display: "inline-block", marginTop: 6, background: "rgba(201,151,43,0.2)", color: "var(--gold-light)", fontSize: 12, fontWeight: 600, padding: "3px 10px", borderRadius: 20, textTransform: "capitalize" }}>{userProfile?.role || "student"}</span>
           </div>
@@ -154,8 +165,8 @@ export default function ProfilePage() {
               {editing ? (
                 <input value={studentId} onChange={e => setStudentId(e.target.value)} placeholder="e.g. 24-12345-678" style={{ width: "100%", padding: "7px 10px", border: "1px solid var(--gray-200)", borderRadius: 6, fontSize: 14, outline: "none", fontFamily: "'Poppins', sans-serif" }} onFocus={e => e.target.style.borderColor = "var(--navy)"} onBlur={e => e.target.style.borderColor = "var(--gray-200)"} />
               ) : (
-                <div style={{ fontSize: 14, color: "var(--gray-800)", fontWeight: userProfile?.studentId ? 500 : 400 }}>
-                  {userProfile?.studentId || <span style={{ color: "var(--gray-400)", fontStyle: "italic" }}>Not set — click Edit to add</span>}
+                <div style={{ fontSize: 14, color: "var(--gray-800)", fontWeight: localStudentId ? 500 : 400 }}>
+                  {localStudentId || <span style={{ color: "var(--gray-400)", fontStyle: "italic" }}>Not set — click Edit to add</span>}
                 </div>
               )}
             </div>
@@ -230,7 +241,7 @@ export default function ProfilePage() {
             <div style={{ fontSize: 11, fontWeight: 600, color: "var(--gray-400)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>
               My Library QR Code
             </div>
-            {!userProfile?.studentId ? (
+            {!localStudentId ? (
               <div style={{ background: "var(--gray-50)", border: "1px dashed var(--gray-200)", borderRadius: 10, padding: "16px 12px", textAlign: "center" }}>
                 <p style={{ fontSize: 12, color: "var(--gray-400)", marginBottom: 8 }}>Set your Student ID to generate your personal QR code</p>
                 <button onClick={() => setEditing(true)} style={{ fontSize: 12, color: "var(--navy)", fontWeight: 600, textDecoration: "underline", cursor: "pointer", background: "none" }}>
@@ -247,7 +258,7 @@ export default function ProfilePage() {
                   onClick={() => {
                     const a = document.createElement("a");
                     a.href = qrDataUrl;
-                    a.download = `libraqr-${userProfile.studentId}.png`;
+                    a.download = `libraqr-${localStudentId}.png`;
                     a.click();
                   }}
                   style={{ marginTop: 8, display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, color: "var(--navy)", fontWeight: 600, padding: "6px 12px", border: "1px solid var(--gray-200)", borderRadius: 6, cursor: "pointer", background: "white" }}
@@ -265,9 +276,9 @@ export default function ProfilePage() {
           <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }} onClick={() => setShowQr(false)}>
             <div style={{ background: "white", borderRadius: 20, padding: 32, textAlign: "center", maxWidth: 320, width: "100%" }} onClick={e => e.stopPropagation()}>
               <div style={{ fontFamily: "'Poppins',sans-serif", fontWeight: 700, color: "var(--navy)", fontSize: 16, marginBottom: 4 }}>
-                {user?.displayName}
+                {localName}
               </div>
-              <div style={{ color: "var(--gray-400)", fontSize: 13, marginBottom: 20 }}>{userProfile?.studentId}</div>
+              <div style={{ color: "var(--gray-400)", fontSize: 13, marginBottom: 20 }}>{localStudentId}</div>
               <img src={qrDataUrl} alt="QR Code" style={{ width: 220, height: 220, display: "block", margin: "0 auto" }} />
               <p style={{ fontSize: 12, color: "var(--gray-400)", marginTop: 16 }}>Show this to library staff to time in</p>
               <button onClick={() => setShowQr(false)} style={{ marginTop: 16, width: "100%", padding: "10px", background: "var(--navy)", color: "white", fontWeight: 600, fontSize: 14, borderRadius: 8, cursor: "pointer" }}>Close</button>
