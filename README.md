@@ -1,165 +1,180 @@
-# 📚 LibraLog — NEU Library Logger
+# 📚 LibraLog — NEU Library Visit Logger
 
-A clean, modern library visit tracking system for **New Era University**.  
-Built with **React + Vite + Firebase** and deployed on **Vercel**.
+> A real-time, role-based library visit tracking system for **New Era University**.  
+> Replaces manual paper logbooks with a modern web application.
+
+<br>
+
+🌐 **Live Site:** [neu-library-logger.vercel.app](https://neu-library-logger.vercel.app)
 
 ---
 
-## 🗂 Folder Structure
+## 📸 Preview
+
+| Login Page | Dashboard | Visitor Logs |
+|:---:|:---:|:---:|
+| ![Login](docs/preview-login.png) | ![Dashboard](docs/preview-dashboard.png) | ![Logs](docs/preview-logs.png) |
+
+---
+
+## ✨ Features
+
+- 🔐 **Authentication** — Email/password login restricted to `@neu.edu.ph` accounts
+- 👥 **Role-Based Access** — Student, Faculty, Librarian, and Admin roles
+- ⏱️ **Time-In / Time-Out Logging** — Real-time visit tracking
+- 📷 **QR Code System** — Students generate a personal QR; staff scan to auto-fill
+- 🔍 **Duplicate Prevention** — Blocks logging a student who is already inside
+- 📋 **Visitor Logs** — Full history with date range filters and CSV export
+- 📊 **Top Visitors Analytics** — Bar chart of most frequent visitors
+- 👤 **Profile Page** — Edit name, Student ID, change password, view visit history
+- 🛠️ **Admin Panel** — Manage user roles, remove accounts
+- 📱 **Fully Responsive** — Works on mobile and desktop
+- 🔑 **Forgot / Reset Password** — Firebase email reset flow
+
+---
+
+## 🔐 Role Access
+
+| Feature | Student | Faculty | Librarian | Admin |
+|---|:---:|:---:|:---:|:---:|
+| Time-In (self) | ✅ | ✅ | ✅ | ✅ |
+| Time-Out visitors | ❌ | ❌ | ✅ | ✅ |
+| View all visitor logs | ❌ | ❌ | ✅ | ✅ |
+| Export CSV | ❌ | ❌ | ✅ | ✅ |
+| Edit log entries | ❌ | ❌ | ✅ | ✅ |
+| Manage user roles | ❌ | ❌ | ❌ | ✅ |
+| Remove users | ❌ | ❌ | ❌ | ✅ |
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | React 18 + Vite |
+| Routing | react-router-dom v6 |
+| Authentication | Firebase Authentication |
+| Database | Cloud Firestore |
+| Hosting | Vercel |
+| Styling | Inline CSS + CSS Variables |
+| Fonts | Poppins (Google Fonts) |
+| QR Code | `qrcode` npm package |
+| QR Scanner | Native BarcodeDetector API |
+| Notifications | react-hot-toast |
+| Date Utilities | date-fns |
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js v18+
+- A Firebase project with Authentication and Firestore enabled
+
+### Installation
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/reneespina0929-tech/neu-library-logger.git
+cd neu-library-logger
+
+# 2. Install dependencies
+npm install
+
+# 3. Create environment variables
+cp .env.example .env.local
+# Fill in your Firebase config values
+
+# 4. Start the development server
+npm run dev
+```
+
+### Environment Variables
+
+Create a `.env.local` file in the root directory:
+
+```env
+VITE_FIREBASE_API_KEY=your_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+```
+
+---
+
+## 🗂️ Project Structure
 
 ```
 neu-library-logger/
-├── public/
+├── public/                  # Static assets (logo, favicon, bg image)
 ├── src/
-│   ├── assets/              # Images, icons
 │   ├── components/
-│   │   ├── auth/            # (reserved for future auth components)
-│   │   ├── dashboard/       # (reserved for dashboard widgets)
-│   │   ├── layout/
-│   │   │   └── Layout.jsx   # Sidebar + navigation wrapper
-│   │   └── logs/            # (reserved for log components)
+│   │   ├── layout/          # Sidebar, mobile nav
+│   │   └── QrScanner.jsx    # Camera QR scanner
 │   ├── firebase/
 │   │   ├── config.js        # Firebase initialization
-│   │   ├── auth.js          # Login / register / logout
-│   │   └── logs.js          # Visit log CRUD operations
+│   │   ├── auth.js          # Auth functions
+│   │   └── logs.js          # Firestore CRUD
 │   ├── hooks/
-│   │   └── useAuth.js       # Auth context + custom hook
+│   │   └── useAuth.jsx      # Auth context
 │   ├── pages/
 │   │   ├── LoginPage.jsx
 │   │   ├── RegisterPage.jsx
 │   │   ├── DashboardPage.jsx
 │   │   ├── TimeInPage.jsx
 │   │   ├── LogsPage.jsx
-│   │   └── ProfilePage.jsx
-│   ├── utils/
-│   │   └── helpers.js       # Date/time formatters, constants
-│   ├── App.jsx              # Routes
-│   ├── main.jsx             # Entry point
-│   └── index.css            # Global styles + CSS variables
-├── .env.example             # Template for environment variables
-├── .gitignore
-├── firestore.rules          # Firestore security rules
-├── index.html
-├── package.json
-├── vercel.json              # Vercel SPA routing fix
-└── vite.config.js
+│   │   ├── ProfilePage.jsx
+│   │   └── AdminPage.jsx
+│   └── utils/
+│       └── helpers.js       # Formatters and constants
+├── vercel.json              # SPA routing config
+└── firestore.rules          # Security rules
 ```
 
 ---
 
-## 🚀 Setup Guide (Step by Step)
+## 📄 Documentation
 
-### Step 1 — Install Node.js
-Download and install from https://nodejs.org (choose the LTS version)
-
-### Step 2 — Create a Firebase Project
-1. Go to https://console.firebase.google.com
-2. Click **"Add project"** → name it `neu-library-logger` → Continue
-3. Disable Google Analytics (optional) → **Create project**
-
-### Step 3 — Enable Firebase Services
-**Authentication:**
-1. Left sidebar → **Authentication** → Get started
-2. Click **Email/Password** → Enable → Save
-
-**Firestore Database:**
-1. Left sidebar → **Firestore Database** → Create database
-2. Choose **"Start in test mode"** (we'll add rules later) → Next
-3. Pick a location close to you (e.g., `asia-southeast1`) → Enable
-
-### Step 4 — Get Firebase Config Keys
-1. Go to **Project Settings** (gear icon ⚙️ in sidebar)
-2. Scroll to **"Your apps"** → Click **"</>"** (Web) icon
-3. Register app name: `neu-library-logger-web`
-4. Copy the `firebaseConfig` object values
-
-### Step 5 — Set Up the Project Locally
-```bash
-# Clone or download the project, then:
-cd neu-library-logger
-npm install
-
-# Create your environment file:
-cp .env.example .env.local
-```
-Open `.env.local` and paste your Firebase values:
-```
-VITE_FIREBASE_API_KEY=AIza...
-VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=your-project-id
-VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
-VITE_FIREBASE_MESSAGING_SENDER_ID=1234567890
-VITE_FIREBASE_APP_ID=1:123:web:abc
-```
-
-### Step 6 — Apply Firestore Security Rules
-1. In Firebase Console → **Firestore Database** → **Rules** tab
-2. Replace everything with the contents of `firestore.rules`
-3. Click **Publish**
-
-### Step 7 — Run Locally
-```bash
-npm run dev
-```
-Open http://localhost:5173 in your browser.
+Full technical documentation is available in the repository:  
+📎 [`LibraLog-Documentation.pdf`](./LibraLog-Documentation.pdf)
 
 ---
 
-## 🌐 Deploy to Vercel
+## 🔒 Firestore Security Rules
 
-### Step 1 — Push to GitHub
-```bash
-git init
-git add .
-git commit -m "initial commit"
-# Create a GitHub repo, then:
-git remote add origin https://github.com/YOUR_USERNAME/neu-library-logger.git
-git push -u origin main
-```
-
-### Step 2 — Import to Vercel
-1. Go to https://vercel.com and sign in
-2. Click **"Add New Project"** → Import your GitHub repo
-3. Vercel will auto-detect Vite — no changes needed to build settings
-
-### Step 3 — Add Environment Variables in Vercel
-1. Before deploying, click **"Environment Variables"**
-2. Add each variable from your `.env.local` file:
-   - `VITE_FIREBASE_API_KEY`
-   - `VITE_FIREBASE_AUTH_DOMAIN`
-   - `VITE_FIREBASE_PROJECT_ID`
-   - `VITE_FIREBASE_STORAGE_BUCKET`
-   - `VITE_FIREBASE_MESSAGING_SENDER_ID`
-   - `VITE_FIREBASE_APP_ID`
-3. Click **Deploy** 🎉
-
-### Step 4 — Add your Vercel domain to Firebase
-1. Copy your Vercel URL (e.g., `neu-library-logger.vercel.app`)
-2. Firebase Console → **Authentication** → **Settings** → **Authorized domains**
-3. Click **Add domain** → paste your Vercel URL → Add
+- Users can only read/write their own profile
+- Admins can read, update, and delete any user profile
+- Authenticated users can create log entries
+- Only Librarians and Admins can update or delete logs
 
 ---
 
-## 👥 User Roles
-| Role | Can Log Time-In | Can Time-Out Visitors | View All Logs |
-|------|:-:|:-:|:-:|
-| Student | ✅ | ❌ | ✅ |
-| Faculty | ✅ | ❌ | ✅ |
-| Librarian | ✅ | ✅ | ✅ |
-| Admin | ✅ | ✅ | ✅ |
+## 🌱 Planned Features
+
+- [ ] Announcement / notice board for library staff
+- [ ] Seat capacity indicator
+- [ ] RFID card support via USB reader
+- [ ] Visit purpose analytics dashboard
+- [ ] QR scanner fallback for Safari/Firefox
+- [ ] Multi-branch library support
 
 ---
 
-## ✨ Features
-- 🔐 Email/password authentication
-- 📊 Real-time dashboard with live visitor count
-- ⏱ Time-in / Time-out logging
-- 🔍 Search & filter visit logs
-- 📥 Export logs to CSV
-- 👤 User profiles with personal visit history
-- 📱 Responsive layout (mobile-friendly)
-- 🔄 Real-time updates via Firestore listeners
+## 👨‍💻 Developer
+
+**Rene Espina**  
+New Era University — College of Computer Studies  
+GitHub: [@reneespina0929-tech](https://github.com/reneespina0929-tech)
 
 ---
 
-Made for New Era University Library 📖
+## 🏫 Institution
+
+**New Era University Library**  
+Quezon City, Philippines  
+
+---
+
+*© 2026 New Era University · All rights reserved*
