@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { useAuth } from '../hooks/useAuth.jsx';
 import { subscribeLogs } from "../firebase/logs";
 import { formatTimestamp, formatDate, formatDuration } from "../utils/helpers";
+import { DEPARTMENTS, DEPT_KEYS } from "../utils/departments";
 import { updateProfile, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
 import { doc, updateDoc } from "firebase/firestore";
 import { auth, db } from "../firebase/config";
@@ -22,6 +23,11 @@ export default function ProfilePage() {
   // Local state that updates immediately on save (no refresh needed)
   const [localName, setLocalName] = useState(user?.displayName || "");
   const [localStudentId, setLocalStudentId] = useState(userProfile?.studentId || "");
+  const [localDept, setLocalDept] = useState(userProfile?.department || "");
+  const [localProgram, setLocalProgram] = useState(userProfile?.program || "");
+
+  const [department, setDepartment] = useState(userProfile?.department || "");
+  const [program, setProgram] = useState(userProfile?.program || "");
 
   // Change password state
   const [showPwForm, setShowPwForm] = useState(false);
@@ -39,7 +45,9 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (userProfile?.studentId) { setStudentId(userProfile.studentId); setLocalStudentId(userProfile.studentId); }
-  }, [userProfile?.studentId]);
+    if (userProfile?.department) { setDepartment(userProfile.department); setLocalDept(userProfile.department); }
+    if (userProfile?.program) { setProgram(userProfile.program); setLocalProgram(userProfile.program); }
+  }, [userProfile?.studentId, userProfile?.department, userProfile?.program]);
 
   // Generate QR code whenever studentId or displayName changes
   useEffect(() => {
@@ -69,16 +77,21 @@ export default function ProfilePage() {
 
   const handleSave = async () => {
     if (!displayName.trim()) { toast.error("Name cannot be empty"); return; }
+    if (!department) { toast.error("Please select your department."); return; }
+    if (!program) { toast.error("Please select your program."); return; }
     setSaving(true);
     try {
       await updateProfile(auth.currentUser, { displayName: displayName.trim() });
       await updateDoc(doc(db, "users", user.uid), {
         displayName: displayName.trim(),
         studentId: studentId.trim().toUpperCase(),
+        department,
+        program,
       });
-      // Update local display state immediately — no refresh needed
       setLocalName(displayName.trim());
       setLocalStudentId(studentId.trim().toUpperCase());
+      setLocalDept(department);
+      setLocalProgram(program);
       toast.success("Profile updated!");
       setEditing(false);
     } catch {
@@ -171,6 +184,40 @@ export default function ProfilePage() {
               )}
             </div>
             <InfoItem label="Member Since" value={user?.metadata?.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString("en-PH", { month: "long", year: "numeric" }) : "—"} />
+
+            {/* Department */}
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ color: "var(--gray-400)", fontSize: 11, fontWeight: 600, marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>Department</div>
+              {editing ? (
+                <select value={department} onChange={e => { setDepartment(e.target.value); setProgram(""); }}
+                  style={{ width: "100%", padding: "7px 10px", border: "1px solid var(--gray-200)", borderRadius: 6, fontSize: 13, outline: "none", fontFamily: "'Poppins',sans-serif", background: "white" }}
+                  onFocus={e => e.target.style.borderColor = "var(--navy)"} onBlur={e => e.target.style.borderColor = "var(--gray-200)"}>
+                  <option value="" disabled>Select department...</option>
+                  {DEPT_KEYS.map(key => <option key={key} value={key}>{key} — {DEPARTMENTS[key].label}</option>)}
+                </select>
+              ) : (
+                <div style={{ fontSize: 14, color: "var(--gray-800)" }}>
+                  {localDept ? <><strong>{localDept}</strong> — {DEPARTMENTS[localDept]?.label}</> : <span style={{ color: "var(--gray-400)", fontStyle: "italic" }}>Not set</span>}
+                </div>
+              )}
+            </div>
+
+            {/* Program */}
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ color: "var(--gray-400)", fontSize: 11, fontWeight: 600, marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>Program</div>
+              {editing ? (
+                <select value={program} onChange={e => setProgram(e.target.value)} disabled={!department}
+                  style={{ width: "100%", padding: "7px 10px", border: "1px solid var(--gray-200)", borderRadius: 6, fontSize: 13, outline: "none", fontFamily: "'Poppins',sans-serif", background: department ? "white" : "var(--gray-50)", color: department ? "inherit" : "var(--gray-400)" }}
+                  onFocus={e => e.target.style.borderColor = "var(--navy)"} onBlur={e => e.target.style.borderColor = "var(--gray-200)"}>
+                  <option value="" disabled>{department ? "Select program..." : "Select department first"}</option>
+                  {(DEPARTMENTS[department]?.programs || []).map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
+              ) : (
+                <div style={{ fontSize: 14, color: "var(--gray-800)" }}>
+                  {localProgram || <span style={{ color: "var(--gray-400)", fontStyle: "italic" }}>Not set</span>}
+                </div>
+              )}
+            </div>
 
             <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
               {editing ? (<>
