@@ -86,6 +86,7 @@ input, select, textarea {
 .fade-in { animation: fadeIn 0.35s ease both; }
 .slide-in { animation: slideIn 0.3s ease both; }
 
-/* Visible placeholders on dark background inputs (login/register pages) */
-input::placeholder { color: rgba(255,255,255,0.45); }
+/* Placeholder text visibility */
+input::placeholder,
+textarea::placeholder { color: rgba(255,255,255,0.45); } /* dark bg pages (login/register) */
 select option { color: #2d3340; background: white; }

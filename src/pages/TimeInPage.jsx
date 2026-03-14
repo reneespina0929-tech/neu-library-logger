@@ -100,6 +100,9 @@ export default function TimeInPage() {
         .timein-layout { display: flex; gap: 20px; align-items: flex-start; }
         .timein-form { flex: 1 1 360px; background: white; border-radius: 12px; box-shadow: var(--shadow-sm); border: 1px solid var(--gray-100); overflow: visible; }
         .timein-side { flex: 1 1 260px; display: flex; flex-direction: column; gap: 14px; }
+        .timein-form input::placeholder { color: #9ba3af !important; }
+        .timein-form select { color: var(--gray-400); }
+        .timein-form select.has-value { color: var(--gray-800); }
         @media (max-width: 768px) {
           .timein-layout { flex-direction: column; }
           .timein-form { width: 100%; overflow: visible; }
@@ -291,7 +294,7 @@ const StudentIdField = ({ id, value, onChange, required }) => {
         value={value}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
-        placeholder="24-#####-##"
+        placeholder="24-12781-942"
         maxLength={12}
         style={inputStyle}
         onFocus={e => e.target.style.borderColor = "var(--navy)"}
