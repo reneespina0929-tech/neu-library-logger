@@ -166,7 +166,7 @@ export default function RegisterPage() {
 const labelStyle = { color: "rgba(255,255,255,0.6)", fontSize: 12, fontWeight: 500, display: "block", marginBottom: 6 };
 const inputStyle = {
   width: "100%", padding: "10px 14px",
-  background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)",
+  background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)",
   borderRadius: 8, color: "white", fontSize: 14, outline: "none", transition: "border-color 0.15s",
   fontFamily: "'Poppins',sans-serif",
 };
