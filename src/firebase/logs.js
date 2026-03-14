@@ -3,6 +3,7 @@ import {
   collection,
   addDoc,
   updateDoc,
+  deleteDoc,
   doc,
   query,
   orderBy,
@@ -45,11 +46,11 @@ export const timeIn = async (studentId, studentName, purpose, loggedBy, loggedBy
     studentName,
     purpose,
     loggedBy,
-    loggedByUid,                                        // uid of the person who logged the visit
+    loggedByUid,
     timeIn: serverTimestamp(),
     timeOut: null,
     status: "active",
-    date: new Date().toISOString().split("T")[0],       // YYYY-MM-DD
+    date: new Date().toISOString().split("T")[0],
   });
   return docRef.id;
 };
@@ -63,9 +64,20 @@ export const timeOut = async (logId) => {
   });
 };
 
-// Real-time listener for all logs.
-// We fetch ordered by timeIn and filter date client-side to avoid
-// requiring a composite Firestore index (date + timeIn).
+// Edit a log entry (correct name, ID or purpose)
+export const editLog = async (logId, fields) => {
+  await updateDoc(doc(db, "logs", logId), {
+    ...fields,
+    editedAt: serverTimestamp(),
+  });
+};
+
+// Delete a log entry
+export const deleteLog = async (logId) => {
+  await deleteDoc(doc(db, "logs", logId));
+};
+
+// Real-time listener for all logs
 export const subscribeLogs = (callback, dateFilter = null) => {
   const q = query(
     collection(db, "logs"),
@@ -95,7 +107,6 @@ export const subscribeActiveVisitors = (callback) => {
       callback(logs);
     },
     (error) => {
-      // Fallback while Firestore index is still building
       console.warn("Index pending, using fallback:", error.message);
       const fallback = query(collection(db, "logs"), where("status", "==", "active"));
       onSnapshot(fallback, (snap) => {
@@ -119,7 +130,6 @@ export const subscribeMyLogs = (uid, callback) => {
       callback(logs);
     },
     (error) => {
-      // Fallback while index builds
       console.warn("My logs index pending, using fallback:", error.message);
       const fallback = query(collection(db, "logs"), where("loggedByUid", "==", uid));
       onSnapshot(fallback, (snap) => {
