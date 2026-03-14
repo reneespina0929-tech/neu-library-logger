@@ -291,7 +291,7 @@ const StudentIdField = ({ id, value, onChange, required }) => {
         value={value}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
-        placeholder="24-12781-942"
+        placeholder="11-11111-11"
         maxLength={12}
         style={inputStyle}
         onFocus={e => e.target.style.borderColor = "var(--navy)"}
