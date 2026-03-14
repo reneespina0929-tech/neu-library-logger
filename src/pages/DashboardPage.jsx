@@ -11,6 +11,7 @@ export default function DashboardPage() {
   const [activeVisitors, setActiveVisitors] = useState([]);
   const [todayLogs, setTodayLogs] = useState([]);
   const [timingOut, setTimingOut] = useState(null);
+  const [tick, setTick] = useState(0); // increments every minute to force duration re-render
   const today = getTodayDateString();
 
   useEffect(() => {
@@ -18,6 +19,12 @@ export default function DashboardPage() {
     const unsub2 = subscribeLogs(setTodayLogs, today);
     return () => { unsub1(); unsub2(); };
   }, [today]);
+
+  // Tick every 30 seconds to update live durations
+  useEffect(() => {
+    const interval = setInterval(() => setTick(t => t + 1), 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleTimeOut = async (logId, studentName) => {
     setTimingOut(logId);
@@ -122,7 +129,7 @@ export default function DashboardPage() {
                   <td style={{ color: "var(--gray-600)" }}>{log.studentId}</td>
                   <td><span style={{ background: "var(--navy)", color: "white", padding: "2px 8px", borderRadius: 20, fontSize: 12 }}>{log.purpose}</span></td>
                   <td style={{ color: "var(--gray-600)" }}>{formatTimestamp(log.timeIn)}</td>
-                  <td style={{ color: "var(--green)", fontWeight: 600 }}>{formatDuration(log.timeIn, null)}</td>
+                  <td style={{ color: "var(--green)", fontWeight: 600 }}>{formatDuration(log.timeIn, null, tick)}</td>
                   {canTimeOut && <td><button onClick={() => handleTimeOut(log.id, log.studentName)} disabled={timingOut === log.id} style={{ padding: "5px 12px", background: "var(--red-light)", color: "var(--red)", fontWeight: 600, fontSize: 13, borderRadius: 6, cursor: "pointer", opacity: timingOut === log.id ? 0.6 : 1 }}>{timingOut === log.id ? "..." : "Time Out"}</button></td>}
                 </tr>
               ))}</tbody>
@@ -134,7 +141,7 @@ export default function DashboardPage() {
               <div key={log.id} className="visitor-card">
                 <div className="visitor-row">
                   <span style={{ fontWeight: 600, fontSize: 14, color: "var(--navy)" }}>{log.studentName}</span>
-                  <span style={{ background: "var(--green-light)", color: "var(--green)", fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 20 }}>Inside · {formatDuration(log.timeIn, null)}</span>
+                  <span style={{ background: "var(--green-light)", color: "var(--green)", fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 20 }}>Inside · {formatDuration(log.timeIn, null, tick)}</span>
                 </div>
                 <div className="visitor-row">
                   <span style={{ fontSize: 12, color: "var(--gray-400)" }}>ID: {log.studentId}</span>
