@@ -1,14 +1,18 @@
 // src/components/layout/Layout.jsx
-// import neuLogo from "../../assets/neu-logo.png";
 import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from '../../hooks/useAuth.jsx';
 import { logoutUser } from "../../firebase/auth";
 import toast from "react-hot-toast";
 
-
 const LogoIcon = ({ size = 32 }) => (
-  <img src="/neu-logo.png" width={size} height={size} alt="NEU Logo" style={{ objectFit: "contain" }} />
+  <img
+    src="/neu-logo.png"
+    width={size}
+    height={size}
+    alt="NEU Logo"
+    style={{ objectFit: "contain", flexShrink: 0, display: "block" }}
+  />
 );
 
 const icons = {
@@ -71,11 +75,11 @@ export default function Layout() {
     .split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 
   const navItems = [
-    { to: "/dashboard", label: "Dashboard", icon: icons.dashboard },
-    { to: "/time-in", label: "Log Visit", icon: icons.visit },
-    ...(isStaff ? [{ to: "/logs", label: "Logs", icon: icons.logs }] : []),
-    ...(isAdmin ? [{ to: "/admin", label: "Users", icon: icons.admin }] : []),
-    { to: "/profile", label: "Profile", icon: icons.profile },
+    { to: "/dashboard", label: "Dashboard", shortLabel: "Dashboard", icon: icons.dashboard },
+    { to: "/time-in", label: "Log Visit", shortLabel: "Log", icon: icons.visit },
+    ...(isStaff ? [{ to: "/logs", label: "Logs", shortLabel: "Logs", icon: icons.logs }] : []),
+    ...(isAdmin ? [{ to: "/admin", label: "Users", shortLabel: "Users", icon: icons.admin }] : []),
+    { to: "/profile", label: "Profile", shortLabel: "Profile", icon: icons.profile },
   ];
 
   return (
@@ -206,16 +210,16 @@ export default function Layout() {
         borderTop: "1px solid rgba(255,255,255,0.07)",
         alignItems: "center", justifyContent: "space-around",
       }}>
-        {navItems.map(({ to, label, icon }) => (
+        {navItems.map(({ to, label, shortLabel, icon }) => (
           <NavLink key={to} to={to} style={({ isActive }) => ({
             display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
             color: isActive ? "var(--gold)" : "rgba(255,255,255,0.45)",
             textDecoration: "none", fontSize: 10, fontWeight: isActive ? 600 : 400,
-            padding: "6px 12px", borderRadius: 8,
-            transition: "color 0.15s",
+            padding: "6px 8px", borderRadius: 8,
+            transition: "color 0.15s", whiteSpace: "nowrap",
           })}>
             {icon}
-            {label}
+            {shortLabel || label}
           </NavLink>
         ))}
         {/* Sign out button in bottom nav */}
