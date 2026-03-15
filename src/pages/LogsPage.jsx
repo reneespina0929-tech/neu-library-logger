@@ -9,7 +9,8 @@ const PRESETS = [
   { label: "Today", getValue: () => { const t = getTodayDateString(); return { from: t, to: t }; } },
   { label: "This Week", getValue: () => {
     const now = new Date();
-    const mon = new Date(now); mon.setDate(now.getDate() - now.getDay() + 1);
+    // FIXED ✅
+    mon.setDate(now.getDate() - (now.getDay() === 0 ? 6 : now.getDay() - 1));
     return { from: mon.toISOString().split("T")[0], to: getTodayDateString() };
   }},
   { label: "This Month", getValue: () => {
