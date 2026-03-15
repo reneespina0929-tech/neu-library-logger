@@ -8,7 +8,7 @@ import QrScanner from "../components/QrScanner";
 
 export default function TimeInPage() {
   const { user } = useAuth();
-  const [form, setForm] = useState({ studentId: "", studentName: "", purpose: "" });
+  const [form, setForm] = useState({ studentId: "", studentName: "", purpose: "Study / Review" });
   const [loading, setLoading] = useState(false);
   const [lastLogged, setLastLogged] = useState(null);
   const [showScanner, setShowScanner] = useState(false);
@@ -64,7 +64,7 @@ export default function TimeInPage() {
       );
       setLastLogged({ ...form, time: new Date() });
       toast.success(`${form.studentName} has been logged in!`);
-      setForm({ studentId: "", studentName: "", purpose: "" });
+      setForm({ studentId: "", studentName: "", purpose: "Study / Review" });
       setDuplicateWarning(null);
       setNameSuggestion("");
       // Focus back to ID field for quick consecutive entries
