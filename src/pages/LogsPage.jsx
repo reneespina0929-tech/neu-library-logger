@@ -7,16 +7,20 @@ import toast from "react-hot-toast";
 
 const PRESETS = [
   { label: "Today", getValue: () => { const t = getTodayDateString(); return { from: t, to: t }; } },
-  { label: "This Week",
+{ label: "This Week",
   getValue: () => {
     const now = new Date();
     const mon = new Date(now);
-    mon.setDate(now.getDate() - (now.getDay() === 0 ? 6 : now.getDay() - 1)); // ✅ fixed
+    mon.setDate(now.getDate() - (now.getDay() === 0 ? 6 : now.getDay() - 1));
     mon.setHours(0, 0, 0, 0);
     const sun = new Date(mon);
     sun.setDate(mon.getDate() + 6);
     sun.setHours(23, 59, 59, 999);
-    return { from: mon, to: sun };
+    // Return ISO date strings so the filter comparison works correctly
+    return {
+      from: mon.toISOString().split("T")[0],
+      to: sun.toISOString().split("T")[0],
+    };
   }},
   { label: "This Month", getValue: () => {
     const now = new Date();
