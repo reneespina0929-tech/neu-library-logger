@@ -5,8 +5,10 @@ import {
   signOut,
   updateProfile,
   sendPasswordResetEmail,
+  GoogleAuthProvider,
+  signInWithPopup,
 } from "firebase/auth";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "./config";
 
 export const registerUser = async (email, password, displayName, role = "student", department = "", program = "") => {
@@ -29,6 +31,32 @@ export const loginUser = async (email, password) => {
   return userCredential.user;
 };
 
+export const loginWithGoogle = async () => {
+  const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ hd: "neu.edu.ph" }); // restrict to NEU domain
+  const result = await signInWithPopup(auth, provider);
+  const user = result.user;
+
+  // Check if user profile already exists in Firestore
+  const userRef = doc(db, "users", user.uid);
+  const userSnap = await getDoc(userRef);
+
+  if (!userSnap.exists()) {
+    // First time Google login — create profile
+    await setDoc(userRef, {
+      uid: user.uid,
+      displayName: user.displayName || user.email.split("@")[0],
+      email: user.email,
+      role: "student",
+      department: "",
+      program: "",
+      createdAt: serverTimestamp(),
+    });
+  }
+
+  return user;
+};
+
 export const logoutUser = async () => {
   await signOut(auth);
 };
@@ -37,7 +65,6 @@ export const resetPassword = async (email) => {
   await sendPasswordResetEmail(auth, email);
 };
 
-// Delete a user's Firestore profile (Firebase Auth deletion requires Admin SDK — we soft-delete from Firestore)
 export const deleteUserProfile = async (uid) => {
   const { deleteDoc, doc } = await import("firebase/firestore");
   const { db } = await import("./config");
