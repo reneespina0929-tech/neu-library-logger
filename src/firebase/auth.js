@@ -14,8 +14,14 @@ import { auth, db } from "./config";
 export const registerUser = async (email, password, displayName, role = "student", department = "", program = "") => {
   const userCredential = await createUserWithEmailAndPassword(auth, email, password);
   const newUser = userCredential.user;
+
+  // Update display name in Auth
   await updateProfile(newUser, { displayName });
-  // Use the credential's user directly — auth.currentUser may not be set yet
+
+  // Force token refresh to ensure auth state is fully propagated before Firestore write
+  await newUser.getIdToken(true);
+
+  // Write profile to Firestore
   await setDoc(doc(db, "users", newUser.uid), {
     uid: newUser.uid,
     displayName,
@@ -25,6 +31,7 @@ export const registerUser = async (email, password, displayName, role = "student
     program: program || "",
     createdAt: serverTimestamp(),
   });
+
   return newUser;
 };
 
