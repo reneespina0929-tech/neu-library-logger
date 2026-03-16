@@ -15,6 +15,7 @@ export const AuthProvider = ({ children }) => {
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeRole, setActiveRole] = useState(null);
+  const [deleted, setDeleted] = useState(false);
 
   useEffect(() => {
     const timeout = setTimeout(() => setLoading(false), 5000);
@@ -30,18 +31,32 @@ export const AuthProvider = ({ children }) => {
         setUser(firebaseUser);
 
         // Use onSnapshot so profile updates (dept, program, role) reflect instantly
+        let profileMissing = false;
         profileUnsub = onSnapshot(doc(db, "users", firebaseUser.uid), (snap) => {
           if (snap.exists()) {
             const profile = snap.data();
             setUserProfile(profile);
             setActiveRole(prev => prev || profile.role);
+            profileMissing = false;
+            setLoading(false);
           } else {
-            // Profile was deleted from Firestore — force logout
-            setUserProfile(null);
-            setActiveRole(null);
-            logoutUser();
+            if (profileMissing) {
+              // Profile was already missing on first check — this is a deleted account
+              setUserProfile(null);
+              setActiveRole(null);
+              setDeleted(true);
+              logoutUser();
+              setLoading(false);
+            } else {
+              // First time seeing no profile — could be a race condition on new register
+              // Wait 1.5 seconds then check again via the snapshot re-firing
+              profileMissing = true;
+              setTimeout(() => {
+                // If still no profile after delay, onSnapshot will fire again and catch it
+                setLoading(false);
+              }, 1500);
+            }
           }
-          setLoading(false);
         }, () => {
           setLoading(false);
         });
@@ -80,7 +95,7 @@ export const AuthProvider = ({ children }) => {
   return (
     <AuthContext.Provider value={{
       user, userProfile: effectiveProfile, loading,
-      isHybrid, activeRole, switchRole,
+      isHybrid, activeRole, switchRole, deleted,
     }}>
       {children}
     </AuthContext.Provider>

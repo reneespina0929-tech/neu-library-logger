@@ -14,12 +14,12 @@ const LogoIcon = ({ size = 40 }) => (
   />
 );
 
-export default function LoginPage() {
+export default function LoginPage({ deletedAccount = false }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPw, setShowPw] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(deletedAccount ? "Your account has been removed. Please contact the library administrator." : "");
 
   // Forgot password state
   const [showReset, setShowReset] = useState(false);

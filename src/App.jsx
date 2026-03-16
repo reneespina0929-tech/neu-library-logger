@@ -13,16 +13,18 @@ import Layout from "./components/layout/Layout";
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
-  console.log("ProtectedRoute:", { user: !!user, loading });
   if (loading) return <LoadingScreen />;
   if (!user) return <Navigate to="/login" replace />;
   return children;
 };
 
 const PublicRoute = ({ children }) => {
-  const { user, loading } = useAuth();
-  console.log("PublicRoute:", { user: !!user, loading });
+  const { user, loading, deleted } = useAuth();
   if (loading) return <LoadingScreen />;
+  if (deleted) {
+    // Show login page with an error — account was deleted
+    return <LoginPage deletedAccount />;
+  }
   if (user) return <Navigate to="/dashboard" replace />;
   return children;
 };
@@ -42,7 +44,13 @@ const LoadingScreen = () => (
 );
 
 const LogoIcon = ({ size = 32 }) => (
-  <img src="/neu-logo.png" width={size} height={size} alt="NEU Logo" style={{ objectFit: "contain" }} />
+  <img
+    src="/neu-logo.png"
+    width={size}
+    height={size}
+    alt="NEU Logo"
+    style={{ objectFit: "contain", flexShrink: 0 }}
+  />
 );
 
 function App() {

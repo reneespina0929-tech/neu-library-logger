@@ -13,17 +13,19 @@ import { auth, db } from "./config";
 
 export const registerUser = async (email, password, displayName, role = "student", department = "", program = "") => {
   const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-  await updateProfile(userCredential.user, { displayName });
-  await setDoc(doc(db, "users", userCredential.user.uid), {
-    uid: userCredential.user.uid,
+  const newUser = userCredential.user;
+  await updateProfile(newUser, { displayName });
+  // Use the credential's user directly — auth.currentUser may not be set yet
+  await setDoc(doc(db, "users", newUser.uid), {
+    uid: newUser.uid,
     displayName,
     email,
     role,
-    department,
-    program,
+    department: department || "",
+    program: program || "",
     createdAt: serverTimestamp(),
   });
-  return userCredential.user;
+  return newUser;
 };
 
 export const loginUser = async (email, password) => {
