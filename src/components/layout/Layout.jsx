@@ -56,7 +56,7 @@ const pageTitles = {
 };
 
 export default function Layout() {
-  const { user, userProfile } = useAuth();
+  const { user, userProfile, isHybrid, activeRole, switchRole } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -164,6 +164,31 @@ export default function Layout() {
 
         {/* User + logout */}
         <div style={{ padding: "12px 10px", borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+
+          {/* Role switcher — hybrid accounts only */}
+          {isHybrid && (
+            <div style={{ marginBottom: 8, padding: "10px 12px", background: "rgba(201,151,43,0.08)", borderRadius: 8, border: "1px solid rgba(201,151,43,0.2)" }}>
+              <div style={{ fontSize: 10, fontWeight: 600, color: "rgba(201,151,43,0.7)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>
+                Switch Role
+              </div>
+              <div style={{ display: "flex", gap: 6 }}>
+                {["student", "admin"].map(role => (
+                  <button key={role} onClick={() => switchRole(role)}
+                    style={{
+                      flex: 1, padding: "5px 8px", borderRadius: 6, fontSize: 12, fontWeight: 600,
+                      cursor: "pointer", textTransform: "capitalize", fontFamily: "'Poppins',sans-serif",
+                      border: activeRole === role ? "none" : "1px solid rgba(255,255,255,0.15)",
+                      background: activeRole === role ? "var(--gold)" : "transparent",
+                      color: activeRole === role ? "var(--navy)" : "rgba(255,255,255,0.5)",
+                      transition: "all 0.15s",
+                    }}>
+                    {role}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 8, background: "rgba(255,255,255,0.05)", marginBottom: 8 }}>
             <div style={{ width: 34, height: 34, borderRadius: "50%", background: "var(--gold)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--navy)", fontWeight: 700, fontSize: 15, flexShrink: 0 }}>{initials}</div>
             <div style={{ overflow: "hidden" }}>
