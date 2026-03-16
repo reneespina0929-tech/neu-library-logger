@@ -3,6 +3,9 @@ import { useState, useEffect, useRef } from "react";
 import { timeIn, checkActiveVisit, getStudentHistory } from "../firebase/logs";
 import { useAuth } from '../hooks/useAuth.jsx';
 import { purposeOptions } from "../utils/helpers";
+import { DEPARTMENTS, DEPT_KEYS } from "../utils/departments";
+import { doc, updateDoc, query, collection, where, limit, getDocs } from "firebase/firestore";
+import { db } from "../firebase/config";
 import toast from "react-hot-toast";
 import QrScanner from "../components/QrScanner";
 
@@ -12,9 +15,15 @@ export default function TimeInPage() {
   const [loading, setLoading] = useState(false);
   const [lastLogged, setLastLogged] = useState(null);
   const [showScanner, setShowScanner] = useState(false);
-  const [duplicateWarning, setDuplicateWarning] = useState(null); // active visit if duplicate
-  const [nameSuggestion, setNameSuggestion] = useState(""); // autosuggest name
+  const [duplicateWarning, setDuplicateWarning] = useState(null);
+  const [nameSuggestion, setNameSuggestion] = useState("");
   const debounceRef = useRef(null);
+
+  // Department/program state — shown only when student has no dept in profile
+  const [missingDept, setMissingDept] = useState(false);
+  const [studentUid, setStudentUid] = useState(null);
+  const [dept, setDept] = useState("");
+  const [program, setProgram] = useState("");
 
   const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
 
@@ -24,6 +33,10 @@ export default function TimeInPage() {
     if (digits.length < 10) {
       setDuplicateWarning(null);
       setNameSuggestion("");
+      setMissingDept(false);
+      setStudentUid(null);
+      setDept("");
+      setProgram("");
       return;
     }
     clearTimeout(debounceRef.current);
@@ -33,11 +46,39 @@ export default function TimeInPage() {
         getStudentHistory(form.studentId),
       ]);
       setDuplicateWarning(active);
-      // Autofill name only if field is empty
       if (history?.studentName && !form.studentName.trim()) {
         setNameSuggestion(history.studentName);
       } else {
         setNameSuggestion("");
+      }
+
+      // Check if student has a department set in their profile
+      try {
+        const q = query(
+          collection(db, "users"),
+          where("studentId", "==", form.studentId.trim().toUpperCase()),
+          limit(1)
+        );
+        const snap = await getDocs(q);
+        if (!snap.empty) {
+          const profile = snap.docs[0].data();
+          setStudentUid(snap.docs[0].id);
+          if (!profile.department) {
+            setMissingDept(true);
+            setDept("");
+            setProgram("");
+          } else {
+            setMissingDept(false);
+          }
+        } else {
+          // Student not registered — show dept fields anyway
+          setMissingDept(true);
+          setStudentUid(null);
+          setDept("");
+          setProgram("");
+        }
+      } catch {
+        setMissingDept(false);
       }
     }, 400);
     return () => clearTimeout(debounceRef.current);
@@ -53,8 +94,24 @@ export default function TimeInPage() {
       toast.error(`${form.studentName} is already inside the library.`);
       return;
     }
+    if (missingDept && !dept) {
+      toast.error("Please select the student's department.");
+      return;
+    }
+    if (missingDept && !program) {
+      toast.error("Please select the student's program.");
+      return;
+    }
     setLoading(true);
     try {
+      // If dept was filled in and student has a profile, save it back
+      if (missingDept && dept && studentUid) {
+        await updateDoc(doc(db, "users", studentUid), {
+          department: dept,
+          program: program,
+        });
+      }
+
       await timeIn(
         form.studentId.trim().toUpperCase(),
         form.studentName.trim(),
@@ -67,7 +124,10 @@ export default function TimeInPage() {
       setForm({ studentId: "", studentName: "", purpose: "Study / Review" });
       setDuplicateWarning(null);
       setNameSuggestion("");
-      // Focus back to ID field for quick consecutive entries
+      setMissingDept(false);
+      setStudentUid(null);
+      setDept("");
+      setProgram("");
       setTimeout(() => {
         document.getElementById("studentId")?.focus();
       }, 100);
@@ -198,6 +258,37 @@ export default function TimeInPage() {
                   {purposeOptions.map(p => <option key={p} value={p}>{p}</option>)}
                 </select>
               </div>
+
+              {/* Dept/program — only shows when student has none in profile */}
+              {missingDept && (
+                <div style={{ background: "rgba(201,151,43,0.07)", border: "1px solid rgba(201,151,43,0.25)", borderRadius: 10, padding: "14px 16px", display: "flex", flexDirection: "column", gap: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <span style={{ fontSize: 12, color: "var(--gold)", fontWeight: 600 }}>No department on file — please fill in below</span>
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Department / College <span style={{ color: "var(--red)" }}>*</span></label>
+                    <select value={dept} onChange={e => { setDept(e.target.value); setProgram(""); }}
+                      style={{ ...inputStyle, cursor: "pointer", color: dept ? "var(--gray-800)" : "var(--gray-400)" }}>
+                      <option value="" disabled>Select department...</option>
+                      {DEPT_KEYS.map(k => <option key={k} value={k}>{k} — {DEPARTMENTS[k].label}</option>)}
+                    </select>
+                  </div>
+                  {dept && (
+                    <div>
+                      <label style={labelStyle}>Program <span style={{ color: "var(--red)" }}>*</span></label>
+                      <select value={program} onChange={e => setProgram(e.target.value)}
+                        style={{ ...inputStyle, cursor: "pointer", color: program ? "var(--gray-800)" : "var(--gray-400)" }}>
+                        <option value="" disabled>Select program...</option>
+                        {(DEPARTMENTS[dept]?.programs || []).map(p => <option key={p} value={p}>{p}</option>)}
+                      </select>
+                    </div>
+                  )}
+                  <p style={{ fontSize: 11, color: "var(--gray-400)", margin: 0 }}>
+                    This will be saved to the student's profile for future visits.
+                  </p>
+                </div>
+              )}
               <button onClick={handleSubmit} disabled={loading} style={{ padding: "13px", background: loading ? "rgba(13,31,60,0.5)" : "var(--navy)", color: "white", fontWeight: 600, fontSize: 15, borderRadius: 10, cursor: loading ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, transition: "background 0.15s", width: "100%" }}>
                 {loading ? "Logging..." : <><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Log Time-In</>}
               </button>
