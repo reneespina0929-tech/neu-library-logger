@@ -41,12 +41,36 @@ export const getStudentHistory = async (studentId) => {
 
 // Log a new library visit (time-in)
 export const timeIn = async (studentId, studentName, purpose, loggedBy, loggedByUid) => {
+  // Look up student's profile to get department and role
+  let department = "";
+  let program = "";
+  let visitorRole = "student";
+  try {
+    const usersQ = query(
+      collection(db, "users"),
+      where("studentId", "==", studentId.toUpperCase()),
+      limit(1)
+    );
+    const snap = await getDocs(usersQ);
+    if (!snap.empty) {
+      const profile = snap.docs[0].data();
+      department = profile.department || "";
+      program = profile.program || "";
+      visitorRole = profile.role || "student";
+    }
+  } catch {
+    // silently continue without profile data
+  }
+
   const docRef = await addDoc(collection(db, "logs"), {
     studentId,
     studentName,
     purpose,
     loggedBy,
     loggedByUid,
+    department,
+    program,
+    visitorRole,
     timeIn: serverTimestamp(),
     timeOut: null,
     status: "active",
@@ -66,7 +90,8 @@ export const timeOut = async (logId) => {
 
 // Edit a log entry (correct name, ID or purpose)
 export const editLog = async (logId, fields) => {
-  await updateDoc(doc(db, "logs", logId), {
+  const logRef = doc(db, "logs", logId);
+  await updateDoc(logRef, {
     ...fields,
     editedAt: serverTimestamp(),
   });
@@ -77,7 +102,9 @@ export const deleteLog = async (logId) => {
   await deleteDoc(doc(db, "logs", logId));
 };
 
-// Real-time listener for all logs
+// Real-time listener for all logs.
+// We fetch ordered by timeIn and filter date client-side to avoid
+// requiring a composite Firestore index (date + timeIn).
 export const subscribeLogs = (callback, dateFilter = null) => {
   const q = query(
     collection(db, "logs"),
@@ -107,6 +134,7 @@ export const subscribeActiveVisitors = (callback) => {
       callback(logs);
     },
     (error) => {
+      // Fallback while Firestore index is still building
       console.warn("Index pending, using fallback:", error.message);
       const fallback = query(collection(db, "logs"), where("status", "==", "active"));
       onSnapshot(fallback, (snap) => {
@@ -130,6 +158,7 @@ export const subscribeMyLogs = (uid, callback) => {
       callback(logs);
     },
     (error) => {
+      // Fallback while index builds
       console.warn("My logs index pending, using fallback:", error.message);
       const fallback = query(collection(db, "logs"), where("loggedByUid", "==", uid));
       onSnapshot(fallback, (snap) => {

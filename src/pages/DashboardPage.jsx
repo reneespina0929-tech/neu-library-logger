@@ -66,14 +66,13 @@ export default function DashboardPage() {
     return allLogs.filter(log => {
       const matchDate = (!from || log.date >= from) && (!to || log.date <= to);
       const matchPurpose = !filterPurpose || log.purpose === filterPurpose;
-      // College filter — match against user profile (stored on log as loggedByUid — need to cross-ref users)
-      // For now filter by department stored on log if available
+      const matchCollege = !filterCollege || log.department === filterCollege;
       const matchEmployee = !filterEmployee || (() => {
-        if (filterEmployee === "teacher") return log.employeeType === "teacher" || log.role === "faculty";
-        if (filterEmployee === "staff") return log.employeeType === "staff";
+        if (filterEmployee === "teacher") return log.visitorRole === "faculty";
+        if (filterEmployee === "staff") return log.visitorRole === "librarian";
         return true;
       })();
-      return matchDate && matchPurpose && matchEmployee;
+      return matchDate && matchPurpose && matchCollege && matchEmployee;
     });
   })();
 
