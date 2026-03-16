@@ -1,8 +1,9 @@
 // src/hooks/useAuth.jsx
 import { useState, useEffect, createContext, useContext } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { auth, db } from "../firebase/config";
+import { logoutUser } from "../firebase/auth";
 
 // Accounts allowed to switch roles on the fly
 const HYBRID_EMAILS = ["rene.espina@neu.edu.ph", "jcesperanza@neu.edu.ph"];
@@ -13,38 +14,54 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  // Active role — can be overridden for hybrid accounts without touching Firestore
   const [activeRole, setActiveRole] = useState(null);
 
   useEffect(() => {
     const timeout = setTimeout(() => setLoading(false), 5000);
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    let profileUnsub = null;
+
+    const authUnsub = onAuthStateChanged(auth, async (firebaseUser) => {
       clearTimeout(timeout);
+
+      // Clean up previous profile listener
+      if (profileUnsub) { profileUnsub(); profileUnsub = null; }
+
       if (firebaseUser) {
         setUser(firebaseUser);
-        try {
-          const profileDoc = await getDoc(doc(db, "users", firebaseUser.uid));
-          if (profileDoc.exists()) {
-            const profile = profileDoc.data();
+
+        // Use onSnapshot so profile updates (dept, program, role) reflect instantly
+        profileUnsub = onSnapshot(doc(db, "users", firebaseUser.uid), (snap) => {
+          if (snap.exists()) {
+            const profile = snap.data();
             setUserProfile(profile);
-            setActiveRole(profile.role); // initialize active role from Firestore
+            setActiveRole(prev => prev || profile.role);
+          } else {
+            // Profile was deleted from Firestore — force logout
+            setUserProfile(null);
+            setActiveRole(null);
+            logoutUser();
           }
-        } catch {
-          // ignore
-        }
+          setLoading(false);
+        }, () => {
+          setLoading(false);
+        });
       } else {
         setUser(null);
         setUserProfile(null);
         setActiveRole(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
-    return () => { unsubscribe(); clearTimeout(timeout); };
+
+    return () => {
+      authUnsub();
+      if (profileUnsub) profileUnsub();
+      clearTimeout(timeout);
+    };
   }, []);
 
   const isHybrid = HYBRID_EMAILS.includes(user?.email);
 
-  // Switch role for hybrid accounts — updates Firestore too
   const switchRole = async (newRole) => {
     if (!isHybrid || !user) return;
     setActiveRole(newRole);
@@ -52,11 +69,10 @@ export const AuthProvider = ({ children }) => {
     try {
       await updateDoc(doc(db, "users", user.uid), { role: newRole });
     } catch {
-      // silently fail — UI already updated
+      // silently fail
     }
   };
 
-  // Expose userProfile with active role applied
   const effectiveProfile = userProfile
     ? { ...userProfile, role: activeRole || userProfile.role }
     : null;
