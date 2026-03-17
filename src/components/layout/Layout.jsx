@@ -16,12 +16,12 @@ const icons = {
   logs: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
   profile: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
   admin: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>,
-  signout: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
+  reports: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,
 };
 
 const pageTitles = {
   "/dashboard": "Dashboard", "/time-in": "Log Visit",
-  "/logs": "Visitor Logs", "/profile": "My Profile", "/admin": "Manage Users",
+  "/logs": "Visitor Logs", "/reports": "Reports", "/profile": "My Profile", "/admin": "Manage Users",
 };
 
 const NavItem = ({ to, label, icon, gold = false }) => (
@@ -65,6 +65,7 @@ export default function Layout() {
     { to: "/dashboard", label: "Dashboard", shortLabel: "Dashboard", icon: icons.dashboard },
     { to: "/time-in", label: "Log Visit", shortLabel: "Log", icon: icons.visit },
     ...(isStaff ? [{ to: "/logs", label: "Logs", shortLabel: "Logs", icon: icons.logs }] : []),
+    ...(isStaff ? [{ to: "/reports", label: "Reports", shortLabel: "Reports", icon: icons.reports }] : []),
     ...(isAdmin ? [{ to: "/admin", label: "Users", shortLabel: "Users", icon: icons.admin }] : []),
     { to: "/profile", label: "Profile", shortLabel: "Profile", icon: icons.profile },
   ];
@@ -108,6 +109,7 @@ export default function Layout() {
             <>
               <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(201,151,43,0.4)", letterSpacing: "0.12em", textTransform: "uppercase", padding: "16px 12px 8px", marginBottom: 2 }}>Staff Only</div>
               <NavItem to="/logs" label="All Visitor Logs" icon={icons.logs} gold />
+              <NavItem to="/reports" label="Reports" icon={icons.reports} gold />
               {isAdmin && <NavItem to="/admin" label="Manage Users" icon={icons.admin} gold />}
             </>
           )}

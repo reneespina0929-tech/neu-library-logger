@@ -6,6 +6,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
 import LogsPage from "./pages/LogsPage";
+import ReportsPage from "./pages/ReportsPage";
 import TimeInPage from "./pages/TimeInPage";
 import ProfilePage from "./pages/ProfilePage";
 import AdminPage from "./pages/AdminPage";
@@ -77,6 +78,7 @@ function App() {
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="time-in" element={<TimeInPage />} />
             <Route path="logs" element={<LogsPage />} />
+            <Route path="reports" element={<ReportsPage />} />
             <Route path="profile" element={<ProfilePage />} />
             <Route path="admin" element={<AdminPage />} />
           </Route>
