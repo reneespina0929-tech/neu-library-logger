@@ -189,9 +189,9 @@ export default function ReportsPage() {
         .summary-card-green::before { background: linear-gradient(90deg, #1a9a5c, #22c55e); }
         .summary-card-gold::before { background: linear-gradient(90deg, #c9972b, #e8b84b); }
         .summary-card-purple::before { background: linear-gradient(90deg, #7c3aed, #a855f7); }
-        .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; min-width: 0; }
         .bar-row:last-child { margin-bottom: 0; }
-        .bar-bg { flex: 1; height: 8px; background: var(--gray-100); border-radius: 4px; overflow: hidden; }
+        .bar-bg { flex: 1; height: 8px; background: var(--gray-100); border-radius: 4px; overflow: hidden; min-width: 0; }
         .bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
         .chart-bar-col { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
         .chart-bar-wrap { width: 100%; display: flex; align-items: flex-end; justify-content: center; height: 80px; }
@@ -367,11 +367,11 @@ export default function ReportsPage() {
               <p style={{ color: "var(--gray-400)", fontSize: 13, textAlign: "center", padding: "16px 0" }}>No data for selected period</p>
             ) : purposeData.map((p, i) => (
               <div key={p.label} className="bar-row">
-                <span style={{ fontSize: 12, color: "var(--gray-700)", minWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.label}</span>
+                <span style={{ fontSize: 11, color: "var(--gray-700)", width: 150, flexShrink: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={p.label}>{p.label}</span>
                 <div className="bar-bg">
                   <div className="bar-fill" style={{ width: `${(p.count / maxPurpose) * 100}%`, background: BAR_COLORS[i % BAR_COLORS.length] }} />
                 </div>
-                <span style={{ fontSize: 12, fontWeight: 700, color: "var(--navy)", minWidth: 28, textAlign: "right" }}>{p.count}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "var(--navy)", width: 28, flexShrink: 0, textAlign: "right" }}>{p.count}</span>
               </div>
             ))}
           </div>
