@@ -114,34 +114,45 @@ export default function DashboardPage() {
   return (
     <div className="fade-in">
       <style>{`
-        .dash-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 20px; }
-        .stat-card { background: white; border-radius: 12px; padding: 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--gray-100); display: flex; align-items: center; gap: 12px; }
-        .stat-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .stat-val { font-size: 24px; font-weight: 700; color: var(--navy); line-height: 1; font-family: 'Poppins',sans-serif; }
-        .stat-lbl { color: var(--gray-400); font-size: 12px; margin-top: 2px; font-weight: 500; }
-        .section-card { background: white; border-radius: 12px; box-shadow: var(--shadow-sm); border: 1px solid var(--gray-100); margin-bottom: 16px; overflow: hidden; }
-        .section-head { padding: 14px 16px; border-bottom: 1px solid var(--gray-100); display: flex; align-items: center; justify-content: space-between; }
+        .dash-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 22px; }
+        .stat-card { background: white; border-radius: 16px; padding: 20px; box-shadow: var(--shadow-sm); border: 1px solid var(--gray-100); display: flex; align-items: center; gap: 14px; transition: box-shadow 0.2s, transform 0.2s; position: relative; overflow: hidden; }
+        .stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+        .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 16px 16px 0 0; }
+        .stat-card-green::before { background: linear-gradient(90deg, #1a9a5c, #22c55e); }
+        .stat-card-navy::before { background: linear-gradient(90deg, #0d1f3c, #1a3a6e); }
+        .stat-card-gold::before { background: linear-gradient(90deg, #c9972b, #e8b84b); }
+        .stat-icon { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .stat-val { font-size: 28px; font-weight: 700; color: var(--navy); line-height: 1; font-family: 'Poppins',sans-serif; }
+        .stat-lbl { color: var(--gray-400); font-size: 11px; margin-top: 3px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+        .section-card { background: white; border-radius: 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--gray-100); margin-bottom: 18px; overflow: hidden; transition: box-shadow 0.2s; }
+        .section-card:hover { box-shadow: var(--shadow-md); }
+        .section-head { padding: 16px 20px; border-bottom: 1px solid var(--gray-100); display: flex; align-items: center; justify-content: space-between; background: linear-gradient(to bottom, white, #fafbfd); }
         .visit-table { width: 100%; border-collapse: collapse; }
-        .visit-table th { padding: 8px 16px; text-align: left; font-size: 11px; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: .06em; background: var(--gray-50); }
-        .visit-table td { padding: 12px 16px; font-size: 13px; border-top: 1px solid var(--gray-100); }
+        .visit-table th { padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 700; color: var(--navy); text-transform: uppercase; letter-spacing: 0.07em; background: linear-gradient(to bottom, #f0f4fa, #edf1f8); border-bottom: 2px solid var(--gray-200); white-space: nowrap; }
+        .visit-table td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid var(--gray-100); transition: background 0.12s; }
+        .visit-table tr:last-child td { border-bottom: none; }
+        .visit-table tbody tr:hover td { background: #f6f9ff; }
         .visitor-card { padding: 14px 16px; border-top: 1px solid var(--gray-100); display: flex; flex-direction: column; gap: 6px; }
         .visitor-card:first-child { border-top: none; }
         .visitor-row { display: flex; justify-content: space-between; align-items: center; }
-        .admin-stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 14px; }
-        .admin-stat-card { background: white; border-radius: 10px; padding: 16px; border: 1px solid var(--gray-100); box-shadow: var(--shadow-sm); }
-        .range-btn { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--gray-200); background: white; color: var(--gray-600); font-family: 'Poppins',sans-serif; }
-        .range-btn.active { background: var(--navy); color: white; border-color: var(--navy); }
-        .filter-select { padding: 7px 10px; border: 1px solid var(--gray-200); border-radius: 8px; font-size: 13px; outline: none; cursor: pointer; font-family: 'Poppins',sans-serif; background: white; color: var(--gray-800); }
-        .purpose-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .admin-stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 16px; }
+        .admin-stat-card { background: white; border-radius: 12px; padding: 16px; border: 1px solid var(--gray-100); box-shadow: var(--shadow-sm); transition: box-shadow 0.2s; }
+        .admin-stat-card:hover { box-shadow: var(--shadow-md); }
+        .range-btn { padding: 5px 13px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--gray-200); background: white; color: var(--gray-600); font-family: 'Poppins',sans-serif; transition: all 0.15s; }
+        .range-btn:hover { border-color: var(--navy); color: var(--navy); }
+        .range-btn.active { background: var(--navy); color: white; border-color: var(--navy); box-shadow: 0 2px 8px rgba(13,31,60,0.2); }
+        .filter-select { padding: 7px 10px; border: 1px solid var(--gray-200); border-radius: 8px; font-size: 13px; outline: none; cursor: pointer; font-family: 'Poppins',sans-serif; background: white; color: var(--gray-800); transition: border-color 0.15s; }
+        .filter-select:focus { border-color: var(--navy); }
+        .purpose-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
         .purpose-bar:last-child { margin-bottom: 0; }
         .purpose-bar-bg { flex: 1; height: 6px; background: var(--gray-100); border-radius: 3px; overflow: hidden; }
-        .purpose-bar-fill { height: 100%; background: var(--navy); border-radius: 3px; }
+        .purpose-bar-fill { height: 100%; background: linear-gradient(90deg, #0d1f3c, #1a3a6e); border-radius: 3px; transition: width 0.5s ease; }
         @media (max-width: 768px) {
-          .dash-stats { grid-template-columns: repeat(3,1fr); gap: 8px; }
-          .stat-card { padding: 12px 10px; gap: 8px; flex-direction: column; align-items: flex-start; }
-          .stat-icon { width: 36px; height: 36px; border-radius: 8px; }
-          .stat-val { font-size: 20px; }
-          .stat-lbl { font-size: 11px; }
+          .dash-stats { grid-template-columns: repeat(3,1fr); gap: 10px; }
+          .stat-card { padding: 14px 12px; gap: 10px; flex-direction: column; align-items: flex-start; }
+          .stat-icon { width: 38px; height: 38px; border-radius: 10px; }
+          .stat-val { font-size: 22px; }
+          .stat-lbl { font-size: 10px; }
           .desktop-table { display: none !important; }
           .mobile-cards { display: block !important; }
           .section-head { padding: 12px 14px; }
@@ -152,11 +163,11 @@ export default function DashboardPage() {
       `}</style>
 
       {/* Header */}
-      <div style={{ marginBottom: 20 }}>
-        <h1 style={{ fontSize: 20, marginBottom: 2 }}>
-          {greeting()}, {user?.displayName?.split(" ")[0] || "User"}
+      <div className="page-header">
+        <h1 style={{ fontSize: 22 }}>
+          {greeting()}, {user?.displayName?.split(" ")[0] || "User"} 👋
         </h1>
-        <p style={{ color: "var(--gray-400)", fontSize: 13 }}>
+        <p style={{ color: "var(--gray-400)", fontSize: 13, marginTop: 2 }}>
           {format(new Date(), "EEEE, MMMM d, yyyy")}
         </p>
       </div>
@@ -164,15 +175,15 @@ export default function DashboardPage() {
       {/* Basic Stats */}
       <div className="dash-stats">
         {[
-          { label: "Inside", value: activeVisitors.length, color: "var(--green)",
-            icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> },
-          { label: "Total Today", value: todayLogs.length, color: "var(--navy)",
-            icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> },
-          { label: "Completed", value: completedToday, color: "var(--gold)",
-            icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg> },
-        ].map(({ label, value, color, icon }) => (
-          <div key={label} className="stat-card">
-            <div className="stat-icon" style={{ background: color + "18", color }}>{icon}</div>
+          { label: "Inside", value: activeVisitors.length, color: "var(--green)", cls: "stat-card-green",
+            icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> },
+          { label: "Total Today", value: todayLogs.length, color: "var(--navy)", cls: "stat-card-navy",
+            icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> },
+          { label: "Completed", value: completedToday, color: "var(--gold)", cls: "stat-card-gold",
+            icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg> },
+        ].map(({ label, value, color, cls, icon }) => (
+          <div key={label} className={`stat-card ${cls}`}>
+            <div className="stat-icon" style={{ background: color + "15", color }}>{icon}</div>
             <div>
               <div className="stat-val">{value}</div>
               <div className="stat-lbl">{label}</div>
