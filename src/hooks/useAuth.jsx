@@ -9,7 +9,6 @@ import { logoutUser } from "../firebase/auth";
 const HYBRID_EMAILS = [
   "rene.espina@neu.edu.ph",
   "jcesperanza@neu.edu.ph",
-  "internship@neu.edu.ph",
 ];
 
 const AuthContext = createContext(null);
