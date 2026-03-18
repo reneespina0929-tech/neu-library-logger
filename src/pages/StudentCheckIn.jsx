@@ -15,7 +15,7 @@ const LogoIcon = ({ size = 40 }) => (
 );
 
 export default function StudentCheckIn() {
-  const { user, userProfile } = useAuth();
+  const { user, userProfile, isHybrid, activeRole, switchRole } = useAuth();
 
   const [purpose, setPurpose] = useState("Study / Review");
   const [dept, setDept] = useState(userProfile?.department || "");
@@ -222,6 +222,25 @@ export default function StudentCheckIn() {
             </button>
           </div>
         </div>
+
+        {/* Role switcher — hybrid accounts only */}
+        {isHybrid && (
+          <div style={{ marginTop: 16, padding: "12px 16px", background: "rgba(201,151,43,0.08)", border: "1px solid rgba(201,151,43,0.2)", borderRadius: 10 }}>
+            <p style={{ fontSize: 11, fontWeight: 600, color: "rgba(201,151,43,0.7)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>Switch Role</p>
+            <div style={{ display: "flex", gap: 8 }}>
+              {["student", "admin"].map(role => (
+                <button key={role} onClick={() => switchRole(role)} style={{
+                  flex: 1, padding: "7px", borderRadius: 8, fontSize: 12, fontWeight: 600,
+                  cursor: "pointer", textTransform: "capitalize", fontFamily: "'Poppins',sans-serif",
+                  border: activeRole === role ? "none" : "1px solid rgba(255,255,255,0.15)",
+                  background: activeRole === role ? "linear-gradient(135deg, #d4a032, #c9972b)" : "transparent",
+                  color: activeRole === role ? "var(--navy)" : "rgba(255,255,255,0.5)",
+                  transition: "all 0.15s",
+                }}>{role}</button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Sign out link */}
         <p style={{ textAlign: "center", marginTop: 16 }}>

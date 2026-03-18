@@ -185,8 +185,7 @@ export default function LoginPage({ deletedAccount = false }) {
                 </div>
 
                 <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 13, textAlign: "center", marginTop: 20 }}>
-                  Don't have an account?{" "}
-                  <a href="/register" style={{ color: "var(--gold-light)", fontWeight: 500 }}>Register here</a>
+                  Staff accounts — contact your administrator
                 </p>
               </>
             ) : (

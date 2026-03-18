@@ -37,7 +37,7 @@ const StudentRoute = ({ children }) => {
   if (loading) return <LoadingScreen />;
   if (!user) return <Navigate to="/login" replace />;
   const role = userProfile?.role;
-  // Staff trying to access check-in — send to dashboard
+  // If role switched to admin/librarian, send to dashboard
   if (role === "admin" || role === "librarian") return <Navigate to="/dashboard" replace />;
   return children;
 };
