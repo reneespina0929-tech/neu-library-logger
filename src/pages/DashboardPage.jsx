@@ -4,8 +4,6 @@ import { subscribeActiveVisitors, subscribeLogs, timeOut } from "../firebase/log
 import { useAuth } from '../hooks/useAuth.jsx';
 import { formatTimestamp, formatDuration, getTodayDateString } from "../utils/helpers";
 import { DEPARTMENTS } from "../utils/departments";
-import { collection, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, query, orderBy } from "firebase/firestore";
-import { db } from "../firebase/config";
 import toast from "react-hot-toast";
 import { format } from "date-fns";
 
@@ -31,48 +29,6 @@ export default function DashboardPage() {
 
   const isAdmin = userProfile?.role === "admin";
   const canTimeOut = userProfile?.role === "admin" || userProfile?.role === "librarian";
-
-  // Announcements
-  const [announcements, setAnnouncements] = useState([]);
-  const [newAnnouncement, setNewAnnouncement] = useState("");
-  const [postingAnnouncement, setPostingAnnouncement] = useState(false);
-  const [showAnnounceForm, setShowAnnounceForm] = useState(false);
-
-  useEffect(() => {
-    const q = query(collection(db, "announcements"), orderBy("createdAt", "desc"));
-    const unsub = onSnapshot(q, snap => {
-      setAnnouncements(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-    });
-    return unsub;
-  }, []);
-
-  const postAnnouncement = async () => {
-    if (!newAnnouncement.trim()) { toast.error("Please enter an announcement."); return; }
-    setPostingAnnouncement(true);
-    try {
-      await addDoc(collection(db, "announcements"), {
-        message: newAnnouncement.trim(),
-        postedBy: userProfile?.displayName || user?.email,
-        createdAt: serverTimestamp(),
-      });
-      setNewAnnouncement("");
-      setShowAnnounceForm(false);
-      toast.success("Announcement posted!");
-    } catch {
-      toast.error("Failed to post announcement.");
-    } finally {
-      setPostingAnnouncement(false);
-    }
-  };
-
-  const deleteAnnouncement = async (id) => {
-    try {
-      await deleteDoc(doc(db, "announcements", id));
-      toast.success("Announcement removed.");
-    } catch {
-      toast.error("Failed to remove announcement.");
-    }
-  };
 
   useEffect(() => {
     const unsub1 = subscribeActiveVisitors(setActiveVisitors);
@@ -215,66 +171,6 @@ export default function DashboardPage() {
           {format(new Date(), "EEEE, MMMM d, yyyy")}
         </p>
       </div>
-
-      {/* ── Announcements ── */}
-      {announcements.length > 0 && (
-        <div style={{ marginBottom: 18 }}>
-          {announcements.map(a => (
-            <div key={a.id} style={{ display: "flex", alignItems: "flex-start", gap: 12, background: "linear-gradient(135deg, #fdf6e3, #fef9ed)", border: "1px solid rgba(201,151,43,0.3)", borderLeft: "4px solid var(--gold)", borderRadius: 12, padding: "12px 16px", marginBottom: 8 }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2.5" style={{ flexShrink: 0, marginTop: 1 }}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: 13, color: "var(--navy)", fontWeight: 500, lineHeight: 1.5 }}>{a.message}</p>
-                <p style={{ fontSize: 11, color: "var(--gray-400)", marginTop: 3 }}>
-                  Posted by {a.postedBy} {a.createdAt?.toDate ? `· ${format(a.createdAt.toDate(), "MMM d, h:mm a")}` : ""}
-                </p>
-              </div>
-              {isAdmin && (
-                <button onClick={() => deleteAnnouncement(a.id)} title="Remove announcement"
-                  style={{ background: "none", color: "var(--gray-400)", cursor: "pointer", padding: "2px", flexShrink: 0, lineHeight: 1 }}
-                  onMouseEnter={e => e.currentTarget.style.color = "var(--red)"}
-                  onMouseLeave={e => e.currentTarget.style.color = "var(--gray-400)"}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Admin — post announcement */}
-      {isAdmin && (
-        <div style={{ marginBottom: 18 }}>
-          {!showAnnounceForm ? (
-            <button onClick={() => setShowAnnounceForm(true)}
-              style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 14px", background: "white", border: "1px solid var(--gray-200)", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", color: "var(--navy)", fontFamily: "'Poppins',sans-serif", transition: "all 0.15s" }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--gold)"; e.currentTarget.style.color = "var(--gold)"; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--gray-200)"; e.currentTarget.style.color = "var(--navy)"; }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-              Post Announcement
-            </button>
-          ) : (
-            <div style={{ background: "white", border: "1px solid var(--gray-200)", borderRadius: 12, padding: 16, boxShadow: "var(--shadow-sm)" }}>
-              <label style={{ fontSize: 12, fontWeight: 600, color: "var(--gray-600)", display: "block", marginBottom: 8 }}>New Announcement</label>
-              <textarea value={newAnnouncement} onChange={e => setNewAnnouncement(e.target.value)}
-                placeholder="e.g. Library closes at 5PM today due to faculty meeting..."
-                rows={2}
-                style={{ width: "100%", padding: "10px 12px", border: "1px solid var(--gray-200)", borderRadius: 8, fontSize: 13, outline: "none", resize: "vertical", fontFamily: "'Poppins',sans-serif", color: "var(--gray-800)" }}
-                onFocus={e => e.target.style.borderColor = "var(--navy)"}
-                onBlur={e => e.target.style.borderColor = "var(--gray-200)"} />
-              <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-                <button onClick={() => { setShowAnnounceForm(false); setNewAnnouncement(""); }}
-                  style={{ padding: "7px 14px", background: "var(--gray-100)", color: "var(--gray-600)", fontWeight: 600, fontSize: 13, borderRadius: 8, cursor: "pointer", fontFamily: "'Poppins',sans-serif" }}>
-                  Cancel
-                </button>
-                <button onClick={postAnnouncement} disabled={postingAnnouncement}
-                  style={{ padding: "7px 16px", background: "var(--navy)", color: "white", fontWeight: 600, fontSize: 13, borderRadius: 8, cursor: postingAnnouncement ? "not-allowed" : "pointer", opacity: postingAnnouncement ? 0.7 : 1, fontFamily: "'Poppins',sans-serif" }}>
-                  {postingAnnouncement ? "Posting..." : "Post"}
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
 
       {/* Basic Stats */}
       <div className="dash-stats">
