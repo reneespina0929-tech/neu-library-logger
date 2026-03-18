@@ -6,7 +6,11 @@ import { auth, db } from "../firebase/config";
 import { logoutUser } from "../firebase/auth";
 
 // Accounts allowed to switch roles on the fly
-const HYBRID_EMAILS = ["rene.espina@neu.edu.ph", "jcesperanza@neu.edu.ph"];
+const HYBRID_EMAILS = [
+  "rene.espina@neu.edu.ph",
+  "jcesperanza@neu.edu.ph",
+  "internship@neu.edu.ph",
+];
 
 const AuthContext = createContext(null);
 
