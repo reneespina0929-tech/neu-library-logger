@@ -9,6 +9,7 @@ import { logoutUser } from "../firebase/auth";
 const HYBRID_EMAILS = [
   "rene.espina@neu.edu.ph",
   "jcesperanza@neu.edu.ph",
+  "internship@neu.edu.ph",
 ];
 
 const AuthContext = createContext(null);
@@ -26,41 +27,35 @@ export const AuthProvider = ({ children }) => {
 
     const authUnsub = onAuthStateChanged(auth, async (firebaseUser) => {
       clearTimeout(timeout);
-
-      // Clean up previous profile listener
       if (profileUnsub) { profileUnsub(); profileUnsub = null; }
 
       if (firebaseUser) {
-        setUser(firebaseUser);
-
-        // Use onSnapshot so profile updates (dept, program, role) reflect instantly
+        // Don't set user until profile is loaded — prevents flash of wrong page
         let profileMissing = false;
         profileUnsub = onSnapshot(doc(db, "users", firebaseUser.uid), (snap) => {
           if (snap.exists()) {
             const profile = snap.data();
+            setUser(firebaseUser); // set user AFTER profile is confirmed
             setUserProfile(profile);
             setActiveRole(prev => prev || profile.role);
             profileMissing = false;
             setLoading(false);
           } else {
             if (profileMissing) {
-              // Profile was already missing on first check — this is a deleted account
               setUserProfile(null);
               setActiveRole(null);
               setDeleted(true);
               logoutUser();
               setLoading(false);
             } else {
-              // First time seeing no profile — could be a race condition on new register
-              // Wait 1.5 seconds then check again via the snapshot re-firing
               profileMissing = true;
               setTimeout(() => {
-                // If still no profile after delay, onSnapshot will fire again and catch it
                 setLoading(false);
               }, 1500);
             }
           }
         }, () => {
+          setUser(firebaseUser);
           setLoading(false);
         });
       } else {

@@ -27,6 +27,25 @@ export default function StudentCheckIn() {
   const [checkInTime, setCheckInTime] = useState(null);
   const [countdown, setCountdown] = useState(5);
 
+  // Auto-format student ID as XX-XXXXX-XXXX
+  const formatStudentId = (raw) => {
+    const digits = raw.replace(/\D/g, "");
+    if (digits.length <= 2) return digits;
+    if (digits.length <= 7) return `${digits.slice(0, 2)}-${digits.slice(2)}`;
+    return `${digits.slice(0, 2)}-${digits.slice(2, 7)}-${digits.slice(7, 11)}`;
+  };
+
+  const handleStudentIdChange = (e) => {
+    setStudentId(formatStudentId(e.target.value));
+  };
+
+  const handleStudentIdKeyDown = (e) => {
+    if (e.key === "Backspace" && studentId.endsWith("-")) {
+      e.preventDefault();
+      setStudentId(studentId.slice(0, -1));
+    }
+  };
+
   const hasDept = !!(userProfile?.department);
   const programs = dept ? DEPARTMENTS[dept]?.programs || [] : [];
 
@@ -154,9 +173,13 @@ export default function StudentCheckIn() {
             <div>
               <label style={labelStyle}>Student ID <span style={{ color: "#ff8080" }}>*</span></label>
               <input
-                type="text" value={studentId}
-                onChange={e => setStudentId(e.target.value)}
-                placeholder="e.g. 24-12781-942"
+                type="text"
+                inputMode="numeric"
+                value={studentId}
+                onChange={handleStudentIdChange}
+                onKeyDown={handleStudentIdKeyDown}
+                placeholder="24-12781-942"
+                maxLength={12}
                 style={inputStyle}
                 onFocus={e => e.target.style.borderColor = "var(--gold)"}
                 onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.15)"}
