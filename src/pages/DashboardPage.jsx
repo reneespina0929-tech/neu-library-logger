@@ -209,7 +209,7 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="page-header">
         <h1 style={{ fontSize: 22 }}>
-          {greeting()}, {user?.displayName?.split(" ")[0] || "User"} 
+          {greeting()}, {user?.displayName?.split(" ")[0] || "User"} 👋
         </h1>
         <p style={{ color: "var(--gray-400)", fontSize: 13, marginTop: 2 }}>
           {format(new Date(), "EEEE, MMMM d, yyyy")}
