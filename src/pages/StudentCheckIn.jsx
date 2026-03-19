@@ -15,7 +15,7 @@ const LogoIcon = ({ size = 40 }) => (
 );
 
 export default function StudentCheckIn() {
-  const { user, userProfile, isHybrid, activeRole, switchRole } = useAuth();
+  const { user, userProfile } = useAuth();
 
   const [purpose, setPurpose] = useState("Study / Review");
   const [dept, setDept] = useState(userProfile?.department || "");
@@ -49,17 +49,13 @@ export default function StudentCheckIn() {
   const hasDept = !!(userProfile?.department);
   const programs = dept ? DEPARTMENTS[dept]?.programs || [] : [];
 
-  // Auto sign out countdown after check-in — skip for hybrid accounts
+  // Auto sign out countdown after check-in
   useEffect(() => {
     if (!checkedIn) return;
-    if (isHybrid) return; // hybrid accounts stay logged in
-    if (countdown <= 0) {
-      logoutUser();
-      return;
-    }
+    if (countdown <= 0) { logoutUser(); return; }
     const t = setTimeout(() => setCountdown(c => c - 1), 1000);
     return () => clearTimeout(t);
-  }, [checkedIn, countdown, isHybrid]);
+  }, [checkedIn, countdown]);
 
   const handleSubmit = async () => {
     setError("");
@@ -128,37 +124,17 @@ export default function StudentCheckIn() {
             </p>
           )}
 
-          {isHybrid ? (
-            // Hybrid accounts — stay logged in, go back to dashboard
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
-              <button onClick={() => switchRole("admin")} style={{
-                padding: "12px 32px", background: "var(--gold)", color: "var(--navy)",
-                fontWeight: 700, fontSize: 15, borderRadius: 10, cursor: "pointer",
-                fontFamily: "'Poppins',sans-serif", border: "none",
-                boxShadow: "0 4px 14px rgba(201,151,43,0.4)",
-              }}>
-                Back to Admin
-              </button>
-              <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 12 }}>
-                You're logged in as a hybrid account
-              </p>
-            </div>
-          ) : (
-            // Regular students — auto sign out
-            <>
-              <button onClick={() => logoutUser()} style={{
-                padding: "12px 32px", background: "var(--gold)", color: "var(--navy)",
-                fontWeight: 700, fontSize: 15, borderRadius: 10, cursor: "pointer",
-                fontFamily: "'Poppins',sans-serif", marginBottom: 12, border: "none",
-                boxShadow: "0 4px 14px rgba(201,151,43,0.4)",
-              }}>
-                Done
-              </button>
-              <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 12 }}>
-                Auto signing out in {countdown}s...
-              </p>
-            </>
-          )}
+          <button onClick={() => logoutUser()} style={{
+            padding: "12px 32px", background: "var(--gold)", color: "var(--navy)",
+            fontWeight: 700, fontSize: 15, borderRadius: 10, cursor: "pointer",
+            fontFamily: "'Poppins',sans-serif", marginBottom: 12, border: "none",
+            boxShadow: "0 4px 14px rgba(201,151,43,0.4)",
+          }}>
+            Done
+          </button>
+          <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 12 }}>
+            Auto signing out in {countdown}s...
+          </p>
         </div>
       </div>
     );
@@ -266,25 +242,6 @@ export default function StudentCheckIn() {
             </button>
           </div>
         </div>
-
-        {/* Role switcher — hybrid accounts only */}
-        {isHybrid && (
-          <div style={{ marginTop: 16, padding: "12px 16px", background: "rgba(201,151,43,0.08)", border: "1px solid rgba(201,151,43,0.2)", borderRadius: 10 }}>
-            <p style={{ fontSize: 11, fontWeight: 600, color: "rgba(201,151,43,0.7)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>Switch Role</p>
-            <div style={{ display: "flex", gap: 8 }}>
-              {["student", "admin"].map(role => (
-                <button key={role} onClick={() => switchRole(role)} style={{
-                  flex: 1, padding: "7px", borderRadius: 8, fontSize: 12, fontWeight: 600,
-                  cursor: "pointer", textTransform: "capitalize", fontFamily: "'Poppins',sans-serif",
-                  border: activeRole === role ? "none" : "1px solid rgba(255,255,255,0.15)",
-                  background: activeRole === role ? "linear-gradient(135deg, #d4a032, #c9972b)" : "transparent",
-                  color: activeRole === role ? "var(--navy)" : "rgba(255,255,255,0.5)",
-                  transition: "all 0.15s",
-                }}>{role}</button>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Sign out link */}
         <p style={{ textAlign: "center", marginTop: 16 }}>

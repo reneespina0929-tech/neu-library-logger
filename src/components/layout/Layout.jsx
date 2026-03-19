@@ -44,7 +44,7 @@ const NavItem = ({ to, label, icon, gold = false }) => (
 );
 
 export default function Layout() {
-  const { user, userProfile, isHybrid, activeRole, switchRole } = useAuth();
+  const { user, userProfile } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -107,26 +107,6 @@ export default function Layout() {
 
         {/* Bottom section */}
         <div style={{ padding: "12px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-
-          {/* Role switcher */}
-          {isHybrid && (
-            <div style={{ marginBottom: 10, padding: "10px 12px", background: "rgba(201,151,43,0.07)", borderRadius: 10, border: "1px solid rgba(201,151,43,0.18)" }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(201,151,43,0.6)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 7 }}>Switch Role</div>
-              <div style={{ display: "flex", gap: 6 }}>
-                {["student", "admin"].map(role => (
-                  <button key={role} onClick={() => switchRole(role)} style={{
-                    flex: 1, padding: "5px 0", borderRadius: 7, fontSize: 11, fontWeight: 600,
-                    cursor: "pointer", textTransform: "capitalize", fontFamily: "'Poppins',sans-serif",
-                    border: activeRole === role ? "none" : "1px solid rgba(255,255,255,0.12)",
-                    background: activeRole === role ? "linear-gradient(135deg, #d4a032, #c9972b)" : "transparent",
-                    color: activeRole === role ? "var(--navy)" : "rgba(255,255,255,0.45)",
-                    transition: "all 0.15s",
-                    boxShadow: activeRole === role ? "0 2px 8px rgba(201,151,43,0.3)" : "none",
-                  }}>{role}</button>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* User card */}
           <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 10, background: "rgba(255,255,255,0.05)", marginBottom: 6, border: "1px solid rgba(255,255,255,0.06)" }}>
