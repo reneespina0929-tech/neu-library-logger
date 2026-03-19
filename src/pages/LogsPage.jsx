@@ -212,7 +212,7 @@ export default function LogsPage() {
           <div className="desktop-table" style={{ overflowX: "auto" }}>
             <table className="logs-table">
               <thead>
-                <tr>{["Student Name","Student ID","Purpose","Date","Time In","Time Out","Duration","Status", ...(isStaff ? ["Actions"] : [])].map(h=><th key={h}>{h}</th>)}</tr>
+                <tr>{["Student Name","Student ID","Purpose","Date","Time In","Time Out","Duration","Status", ...(isStaff ? [""] : [])].map(h=><th key={h}>{h}</th>)}</tr>
               </thead>
               <tbody>{filtered.map((log, i) => (
                 <tr key={log.id} style={{ background: i % 2 === 0 ? "white" : "var(--gray-50)" }}>
