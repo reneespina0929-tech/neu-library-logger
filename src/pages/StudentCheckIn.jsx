@@ -49,16 +49,17 @@ export default function StudentCheckIn() {
   const hasDept = !!(userProfile?.department);
   const programs = dept ? DEPARTMENTS[dept]?.programs || [] : [];
 
-  // Auto sign out countdown after check-in
+  // Auto sign out countdown after check-in — skip for hybrid accounts
   useEffect(() => {
     if (!checkedIn) return;
+    if (isHybrid) return; // hybrid accounts stay logged in
     if (countdown <= 0) {
       logoutUser();
       return;
     }
     const t = setTimeout(() => setCountdown(c => c - 1), 1000);
     return () => clearTimeout(t);
-  }, [checkedIn, countdown]);
+  }, [checkedIn, countdown, isHybrid]);
 
   const handleSubmit = async () => {
     setError("");
@@ -127,17 +128,37 @@ export default function StudentCheckIn() {
             </p>
           )}
 
-          <button onClick={() => logoutUser()} style={{
-            padding: "12px 32px", background: "var(--gold)", color: "var(--navy)",
-            fontWeight: 700, fontSize: 15, borderRadius: 10, cursor: "pointer",
-            fontFamily: "'Poppins',sans-serif", marginBottom: 12, border: "none",
-            boxShadow: "0 4px 14px rgba(201,151,43,0.4)",
-          }}>
-            Done
-          </button>
-          <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 12 }}>
-            Auto signing out in {countdown}s...
-          </p>
+          {isHybrid ? (
+            // Hybrid accounts — stay logged in, go back to dashboard
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+              <button onClick={() => switchRole("admin")} style={{
+                padding: "12px 32px", background: "var(--gold)", color: "var(--navy)",
+                fontWeight: 700, fontSize: 15, borderRadius: 10, cursor: "pointer",
+                fontFamily: "'Poppins',sans-serif", border: "none",
+                boxShadow: "0 4px 14px rgba(201,151,43,0.4)",
+              }}>
+                Back to Admin
+              </button>
+              <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 12 }}>
+                You're logged in as a hybrid account
+              </p>
+            </div>
+          ) : (
+            // Regular students — auto sign out
+            <>
+              <button onClick={() => logoutUser()} style={{
+                padding: "12px 32px", background: "var(--gold)", color: "var(--navy)",
+                fontWeight: 700, fontSize: 15, borderRadius: 10, cursor: "pointer",
+                fontFamily: "'Poppins',sans-serif", marginBottom: 12, border: "none",
+                boxShadow: "0 4px 14px rgba(201,151,43,0.4)",
+              }}>
+                Done
+              </button>
+              <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 12 }}>
+                Auto signing out in {countdown}s...
+              </p>
+            </>
+          )}
         </div>
       </div>
     );
