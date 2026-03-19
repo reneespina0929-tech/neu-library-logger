@@ -1,6 +1,6 @@
 // src/pages/LogsPage.jsx
 import { useState, useEffect } from "react";
-import { subscribeLogs, editLog, timeOut } from "../firebase/logs";
+import { subscribeLogs, timeOut } from "../firebase/logs";
 import { useAuth } from "../hooks/useAuth.jsx";
 import { formatTimestamp, formatDate, formatDuration, getTodayDateString } from "../utils/helpers";
 import toast from "react-hot-toast";
@@ -42,9 +42,6 @@ export default function LogsPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [loading, setLoading] = useState(true);
 
-  const [editTarget, setEditTarget] = useState(null);
-  const [editForm, setEditForm] = useState({ studentId: "", studentName: "", purpose: "" });
-  const [editLoading, setEditLoading] = useState(false);
   const [timingOut, setTimingOut] = useState(null);
 
   useEffect(() => {
@@ -96,31 +93,6 @@ export default function LogsPage() {
     URL.revokeObjectURL(url);
   };
 
-  const openEdit = (log) => {
-    setEditTarget(log);
-    setEditForm({ studentId: log.studentId || "", studentName: log.studentName || "", purpose: log.purpose || "" });
-  };
-
-  const handleEdit = async () => {
-    if (!editForm.studentId.trim() || !editForm.studentName.trim() || !editForm.purpose) {
-      toast.error("All fields are required."); return;
-    }
-    setEditLoading(true);
-    try {
-      await editLog(editTarget.id, {
-        studentId: editForm.studentId.trim().toUpperCase(),
-        studentName: editForm.studentName.trim(),
-        purpose: editForm.purpose,
-      });
-      toast.success("Log entry updated.");
-      setEditTarget(null);
-    } catch {
-      toast.error("Failed to update log.");
-    } finally {
-      setEditLoading(false);
-    }
-  };
-
   const handleTimeOut = async (log) => {
     setTimingOut(log.id);
     try {
@@ -137,42 +109,6 @@ export default function LogsPage() {
 
   return (
     <div className="fade-in">
-
-      {/* Edit Modal */}
-      {editTarget && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
-          <div style={{ background: "white", borderRadius: 16, padding: 28, maxWidth: 400, width: "100%", boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--navy)" }}>Edit Log Entry</h3>
-              <button onClick={() => setEditTarget(null)} style={{ background: "none", fontSize: 20, color: "var(--gray-400)", cursor: "pointer", lineHeight: 1 }}>×</button>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {[["Student ID", "studentId"], ["Full Name", "studentName"]].map(([label, key]) => (
-                <div key={key}>
-                  <label style={{ fontSize: 12, fontWeight: 600, color: "var(--gray-600)", display: "block", marginBottom: 5 }}>{label}</label>
-                  <input type="text" value={editForm[key]} onChange={e => setEditForm(f => ({ ...f, [key]: e.target.value }))}
-                    style={{ width: "100%", padding: "9px 12px", border: "1px solid var(--gray-200)", borderRadius: 8, fontSize: 14, outline: "none", fontFamily: "'Poppins',sans-serif" }}
-                    onFocus={e => e.target.style.borderColor = "var(--navy)"} onBlur={e => e.target.style.borderColor = "var(--gray-200)"} />
-                </div>
-              ))}
-              <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "var(--gray-600)", display: "block", marginBottom: 5 }}>Purpose</label>
-                <select value={editForm.purpose} onChange={e => setEditForm(f => ({ ...f, purpose: e.target.value }))}
-                  style={{ width: "100%", padding: "9px 12px", border: "1px solid var(--gray-200)", borderRadius: 8, fontSize: 14, outline: "none", fontFamily: "'Poppins',sans-serif", background: "white" }}>
-                  <option value="" disabled>Select purpose...</option>
-                  {PURPOSES.map(p => <option key={p} value={p}>{p}</option>)}
-                </select>
-              </div>
-            </div>
-            <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
-              <button onClick={() => setEditTarget(null)} style={{ flex: 1, padding: "10px", background: "var(--gray-100)", color: "var(--gray-700)", fontWeight: 600, fontSize: 13, borderRadius: 8, cursor: "pointer", border: "none", fontFamily: "'Poppins',sans-serif" }}>Cancel</button>
-              <button onClick={handleEdit} disabled={editLoading} style={{ flex: 1, padding: "10px", background: "var(--navy)", color: "white", fontWeight: 600, fontSize: 13, borderRadius: 8, cursor: editLoading ? "not-allowed" : "pointer", opacity: editLoading ? 0.7 : 1, border: "none", fontFamily: "'Poppins',sans-serif" }}>
-                {editLoading ? "Saving..." : "Save Changes"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       <style>{`
         .logs-controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; padding: 14px 16px; background: white; border-radius: 12px; box-shadow: var(--shadow-sm); border: 1px solid var(--gray-100); margin-bottom: 12px; }
@@ -298,12 +234,6 @@ export default function LogsPage() {
                   {isStaff && (
                     <td>
                       <div style={{ display: "flex", gap: 6 }}>
-                        <button onClick={() => openEdit(log)} title="Edit entry"
-                          style={{ padding: "4px 8px", background: "rgba(13,31,60,0.07)", border: "1px solid rgba(13,31,60,0.15)", borderRadius: 6, cursor: "pointer", color: "var(--navy)", display: "flex", alignItems: "center" }}
-                          onMouseEnter={e => e.currentTarget.style.background = "rgba(13,31,60,0.15)"}
-                          onMouseLeave={e => e.currentTarget.style.background = "rgba(13,31,60,0.07)"}>
-                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                        </button>
                         {log.status === "active" && (
                           <button onClick={() => handleTimeOut(log)} disabled={timingOut === log.id} title="Time out"
                             style={{ padding: "4px 8px", background: "rgba(26,154,92,0.08)", border: "1px solid rgba(26,154,92,0.25)", borderRadius: 6, cursor: timingOut === log.id ? "not-allowed" : "pointer", color: "var(--green)", display: "flex", alignItems: "center", opacity: timingOut === log.id ? 0.5 : 1 }}
@@ -336,9 +266,6 @@ export default function LogsPage() {
                     <span style={{ fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 20, background: log.status === "active" ? "rgba(26,154,92,0.12)" : "var(--gray-100)", color: log.status === "active" ? "var(--green)" : "var(--gray-600)" }}>{log.status === "active" ? "Inside" : "Completed"}</span>
                     {isStaff && (
                       <>
-                        <button onClick={() => openEdit(log)} style={{ padding: "4px 7px", background: "rgba(13,31,60,0.07)", border: "1px solid rgba(13,31,60,0.15)", borderRadius: 6, cursor: "pointer", color: "var(--navy)" }}>
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                        </button>
                         {log.status === "active" && (
                           <button onClick={() => handleTimeOut(log)} disabled={timingOut === log.id} style={{ padding: "4px 7px", background: "rgba(26,154,92,0.08)", border: "1px solid rgba(26,154,92,0.25)", borderRadius: 6, cursor: "pointer", color: "var(--green)", opacity: timingOut === log.id ? 0.5 : 1 }}>
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
