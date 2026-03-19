@@ -7,6 +7,7 @@ import { DEPARTMENTS, DEPT_KEYS } from "../utils/departments";
 import { doc, updateDoc, query, collection, where, limit, getDocs } from "firebase/firestore";
 import { db } from "../firebase/config";
 import toast from "react-hot-toast";
+import QrScanner from "../components/QrScanner";
 
 export default function TimeInPage() {
   const { user } = useAuth();
@@ -14,6 +15,7 @@ export default function TimeInPage() {
   const [loading, setLoading] = useState(false);
   const [lastLogged, setLastLogged] = useState(null);
   const [duplicateWarning, setDuplicateWarning] = useState(null);
+  const [showScanner, setShowScanner] = useState(false);
   const [nameSuggestion, setNameSuggestion] = useState("");
   const debounceRef = useRef(null);
 
@@ -136,8 +138,22 @@ export default function TimeInPage() {
     }
   };
 
+  const handleScan = (data) => {
+    const parts = data.split("|");
+    setForm(f => ({
+      ...f,
+      studentId: parts[0]?.trim() || f.studentId,
+      studentName: parts[1]?.trim() || f.studentName,
+    }));
+    setShowScanner(false);
+    toast.success("QR scanned! Verify details and submit.");
+  };
+
   return (
     <div className="fade-in">
+      {showScanner && (
+        <QrScanner onScan={handleScan} onClose={() => setShowScanner(false)} />
+      )}
       <style>{`
         .timein-layout { display: flex; gap: 20px; align-items: flex-start; }
         .timein-form { flex: 1 1 360px; background: white; border-radius: 12px; box-shadow: var(--shadow-sm); border: 1px solid var(--gray-100); overflow: visible; }
@@ -161,9 +177,15 @@ export default function TimeInPage() {
       <div className="timein-layout">
         {/* Form */}
         <div className="timein-form">
-          <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--gray-100)", background: "var(--navy)" }}>
-            <h2 style={{ color: "var(--gold)", fontSize: 15, fontFamily: "'Poppins', sans-serif" }}>New Visit Entry</h2>
-            <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 13, marginTop: 2 }}>Time-in a student or visitor</p>
+          <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--gray-100)", background: "var(--navy)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div>
+              <h2 style={{ color: "var(--gold)", fontSize: 15, fontFamily: "'Poppins', sans-serif" }}>New Visit Entry</h2>
+              <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 13, marginTop: 2 }}>Time-in a student or visitor</p>
+            </div>
+            <button onClick={() => setShowScanner(true)} style={{ display: "flex", alignItems: "center", gap: 6, background: "var(--gold)", color: "var(--navy)", fontWeight: 700, fontSize: 13, padding: "8px 14px", borderRadius: 8, cursor: "pointer", whiteSpace: "nowrap", fontFamily: "'Poppins', sans-serif" }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/><rect x="19" y="14" width="2" height="2"/><rect x="14" y="19" width="2" height="2"/><rect x="19" y="19" width="2" height="2"/></svg>
+              Scan QR
+            </button>
           </div>
 
           <div className="timein-form-inner" style={{ padding: 20 }}>

@@ -1,5 +1,5 @@
 // src/pages/StudentCheckIn.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../hooks/useAuth.jsx";
 import { logoutUser } from "../firebase/auth";
 import { timeIn } from "../firebase/logs";
@@ -8,6 +8,7 @@ import { DEPARTMENTS, DEPT_KEYS } from "../utils/departments";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { format } from "date-fns";
+import QRCode from "qrcode";
 
 const LogoIcon = ({ size = 40 }) => (
   <img src="/neu-logo.png" width={size} height={size} alt="NEU Logo"
@@ -26,6 +27,8 @@ export default function StudentCheckIn() {
   const [checkedIn, setCheckedIn] = useState(false);
   const [checkInTime, setCheckInTime] = useState(null);
   const [countdown, setCountdown] = useState(5);
+  const [qrUrl, setQrUrl] = useState("");
+  const qrCanvasRef = useRef(null);
 
   // Auto-format student ID as XX-XXXXX-XXXX
   const formatStudentId = (raw) => {
@@ -85,6 +88,13 @@ export default function StudentCheckIn() {
 
       setCheckInTime(new Date());
       setCheckedIn(true);
+
+      // Generate QR code — encodes as "studentId|studentName"
+      const qrData = `${studentId.trim().toUpperCase()}|${userProfile?.displayName || user?.displayName || ""}`;
+      try {
+        const url = await QRCode.toDataURL(qrData, { width: 200, margin: 1, color: { dark: "#0d1f3c", light: "#ffffff" } });
+        setQrUrl(url);
+      } catch { /* silently skip if QR fails */ }
     } catch (err) {
       setError("Failed to log visit. Please try again.");
     } finally {
@@ -119,9 +129,36 @@ export default function StudentCheckIn() {
             {purpose}
           </p>
           {checkInTime && (
-            <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 13, marginBottom: 32 }}>
+            <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 13, marginBottom: 24 }}>
               Checked in at {format(checkInTime, "hh:mm a")} · {format(checkInTime, "MMMM d, yyyy")}
             </p>
+          )}
+
+          {/* QR Code */}
+          {qrUrl && (
+            <div style={{ marginBottom: 24 }}>
+              <div style={{ background: "white", borderRadius: 16, padding: 16, display: "inline-block", boxShadow: "0 4px 20px rgba(0,0,0,0.3)" }}>
+                <img src={qrUrl} alt="Your QR Code" width={160} height={160} style={{ display: "block" }} />
+              </div>
+              <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, marginTop: 8 }}>
+                Your personal QR code — show this to the librarian next visit
+              </p>
+              <button onClick={() => {
+                const a = document.createElement("a");
+                a.href = qrUrl;
+                a.download = `neu-library-qr-${studentId}.png`;
+                a.click();
+              }} style={{
+                marginTop: 10, display: "inline-flex", alignItems: "center", gap: 6,
+                padding: "7px 16px", background: "rgba(255,255,255,0.1)",
+                border: "1px solid rgba(255,255,255,0.2)", borderRadius: 8,
+                color: "white", fontSize: 12, fontWeight: 600, cursor: "pointer",
+                fontFamily: "'Poppins',sans-serif",
+              }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Save QR Code
+              </button>
+            </div>
           )}
 
           <button onClick={() => logoutUser()} style={{
