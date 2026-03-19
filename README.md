@@ -38,121 +38,119 @@
 - Provide real-time visibility into who is currently inside the library
 - Enable librarians and admins to log, manage, and export visitor records
 - Generate visit statistics and analytics for reporting
-- Allow students to generate a personal QR code for faster check-in
+- Allow students to check in quickly using their NEU Google account
 
-### Target Users
-| User | Description |
-|---|---|
-| Students & Faculty | Log their own library visits, generate QR codes, view personal visit history |
-| Librarians | Time-in and time-out all visitors, view and manage all logs, export CSV reports |
-| Admins | Full access including user management, visitor statistics, and analytics dashboard |
+### User Flows
+
+**Students / Faculty:**
+1. Open the site → click **Continue with Google** using NEU email
+2. Land on the **Check-In page** — enter Student ID, select purpose (dept/program auto-filled if already set)
+3. Submit → **"Welcome to NEU Library!"** success screen
+4. Auto signed out after 5 seconds → back to login for next student
+
+**Librarians / Admins:**
+1. Login with email/password or Google
+2. Access full dashboard, logs, reports, and management tools
 
 ---
 
 ## 2. Features
 
 ### Authentication
-- ✅ Email and password login restricted to `@neu.edu.ph` domain
-- ✅ **Google Sign-In** with NEU email domain enforcement (`@neu.edu.ph` only)
-- ✅ **"Welcome to NEU Library!"** greeting toast on every successful login
+- ✅ **Google Sign-In** — primary login for all users (NEU domain enforced)
+- ✅ Email/password login — for staff accounts
+- ✅ **"Welcome to NEU Library!"** greeting on successful login
 - ✅ Forgot Password — Firebase email reset link
-- ✅ Change Password with current password re-authentication
-- ✅ Deleted accounts are automatically blocked — forced sign-out with error message
+- ✅ Deleted accounts automatically blocked — forced sign-out with error message
 
-### Registration
-- ✅ Full name, NEU email, department, program, password
-- ✅ Department dropdown cascades into program list (all NEU colleges included)
-- ✅ Department and program saved to profile on registration
-- ✅ Email domain validated — only `@neu.edu.ph` accepted
-- ✅ All new accounts start as `student` role by default
+### Student Check-In Flow
+- ✅ Google Sign-In → lands on dedicated Check-In page (no dashboard access)
+- ✅ Student ID field with auto-format XX-XXXXX-XXXX
+- ✅ Department and program auto-fill if already set; dropdowns appear if not
+- ✅ Purpose of Visit dropdown (defaults to Study / Review)
+- ✅ Success screen with name, purpose, and check-in time
+- ✅ Auto sign-out after 5 seconds → back to login
 
-### Dashboard
-- ✅ Personalized greeting with current date
-- ✅ 3 real-time stat cards: Currently Inside, Total Today, Completed
-- ✅ Live active visitors table with pulsing indicator
-- ✅ Duration counter updates every 30 seconds without page refresh
-- ✅ Time Out button on active visitors (Librarian/Admin only)
-- ✅ Today's visit log (last 20 entries)
+### Dashboard (Staff/Admin only)
+- ✅ Real-time stat cards: Currently Inside, Total Today, Completed
+- ✅ Live active visitors table with Time Out button
+- ✅ Duration counter updates every 30 seconds without refresh
+- ✅ Today's visit log
 - ✅ **Admin-only Visitor Statistics panel:**
   - Date range: Today, This Week, This Month, Custom
-  - Filter by reason for visiting (purpose)
-  - Filter by college / department
-  - Filter by employee type (Teacher / Staff)
-  - 4 analytics cards: Total Visits, Currently Inside, Completed, Average Duration
-  - Visit reasons breakdown bar chart
+  - Filter by purpose, college, employee type
+  - 4 analytics cards + visit reasons bar chart
 
-### Log Visit (Time-In)
-- ✅ Student ID auto-formats as XX-XXXXX-XXXX (digits only, dashes auto-inserted)
-- ✅ Default purpose pre-selected as "Study / Review" for faster entry
+### Log Visit (Staff)
+- ✅ Manual entry: Student ID, Full Name, Purpose
+- ✅ Student ID auto-format XX-XXXXX-XXXX
+- ✅ Default purpose: Study / Review
 - ✅ Duplicate prevention — blocks logging a student already inside
-- ✅ Name autosuggest from visit history for returning students
-- ✅ QR code scanning (Chrome/Android) to auto-fill Student ID and Name
-- ✅ Department and program auto-saved on log entry for analytics
-- ✅ **If student has no department on file** — department/program dropdowns appear and save to both the log and the student's profile
+- ✅ Name autosuggest from visit history
+- ✅ QR code scanning (Chrome/Android)
+- ✅ Dept/program dropdowns appear if student has none on file
 
-### Visitor Logs
-- ✅ Full visit history (Librarian/Admin only)
-- ✅ Preset date filters: Today, This Week, This Month, All Time
-- ✅ Custom date range picker
-- ✅ Search by student name, ID, or purpose
-- ✅ Filter by status: All, Currently Inside, Completed
-- ✅ Top 5 Visitors bar chart for selected range
-- ✅ Visit count badge on frequent visitors
-- ✅ Edit log entries (correct name, ID, or purpose)
-- ✅ Time-out directly from Logs page
-- ✅ Export to CSV with date range in filename
+### Visitor Logs (Staff/Admin)
+- ✅ Date range presets + custom picker
+- ✅ Search, status filter, CSV export
+- ✅ Top 5 Visitors bar chart
+- ✅ Time-out directly from logs page
 
-### Profile Page
-- ✅ Edit display name, Student ID, Department, and Program
-- ✅ All edits reflect instantly without page refresh
-- ✅ QR Code generation — tap to enlarge, download as PNG
-- ✅ Change password with re-authentication
+### Reports (Staff/Admin)
+- ✅ Monthly trend bar chart (last 6 months)
+- ✅ Busiest days of week chart
+- ✅ Peak hours chart (6AM–9PM)
+- ✅ Visit reasons breakdown
+- ✅ College/department breakdown
+- ✅ Top 8 visitors table
+- ✅ Period selector: This Week / This Month / Last 3 Months / This Year / Custom
+- ✅ Export CSV + Print
+
+### Profile Page (Staff)
+- ✅ Edit name, Student ID, department, program
+- ✅ QR code generation — tap to enlarge, download
+- ✅ Change password
 - ✅ Personal visit history
 
 ### Admin — Manage Users
-- ✅ List all registered users with role summary stats (Students, Faculty, Librarians, Admins)
-- ✅ Change user roles instantly via dropdown
-- ✅ Delete users with confirmation modal (visit logs are preserved)
-- ✅ Search users by name, email, or student ID
-- ✅ Admin cannot change or delete their own account
+- ✅ All users with role summary stats
+- ✅ Role dropdown per user (saves instantly)
+- ✅ Delete user with confirmation modal
+- ✅ Search by name, email, or student ID
 
 ---
 
 ## 3. Role-Based Access Control
 
-| Feature | Student | Faculty | Librarian | Admin |
-|---|:---:|:---:|:---:|:---:|
-| Time-In (self) | ✅ | ✅ | ✅ | ✅ |
-| Time-Out visitors | ❌ | ❌ | ✅ | ✅ |
-| View all visitor logs | ❌ | ❌ | ✅ | ✅ |
-| Edit log entries | ❌ | ❌ | ✅ | ✅ |
-| Export CSV | ❌ | ❌ | ✅ | ✅ |
-| View visitor statistics | ❌ | ❌ | ❌ | ✅ |
-| Manage user roles | ❌ | ❌ | ❌ | ✅ |
-| Delete users | ❌ | ❌ | ❌ | ✅ |
-| Switch roles on the fly | ❌ | ❌ | ❌ | Hybrid only |
+| Feature | Student / Faculty | Librarian | Admin |
+|---|:---:|:---:|:---:|
+| Check-In (self via Google) | ✅ | ✅ | ✅ |
+| Dashboard | ❌ | ✅ | ✅ |
+| Log Visit (manual/QR) | ❌ | ✅ | ✅ |
+| Time-Out visitors | ❌ | ✅ | ✅ |
+| View all visitor logs | ❌ | ✅ | ✅ |
+| Export CSV | ❌ | ✅ | ✅ |
+| Reports page | ❌ | ✅ | ✅ |
+| View visitor statistics | ❌ | ❌ | ✅ |
+| Manage user roles | ❌ | ❌ | ✅ |
+| Delete users | ❌ | ❌ | ✅ |
+| Switch roles on the fly | ❌ | ❌ | Hybrid only |
 
-> All new accounts are assigned the `student` role by default. Role promotion is done by an Admin through the Manage Users page.
+> Students and faculty are redirected to the Check-In page after login. They never see the sidebar, dashboard, or any staff pages.
 
 ---
 
 ## 4. Hybrid Accounts
 
-Certain accounts can **switch between Student and Admin roles on the fly** directly from the sidebar — without going through the Manage Users page.
+Certain accounts can **switch between Student and Admin roles** directly from the sidebar or the Check-In page.
 
 **Hybrid accounts:**
 - `rene.espina@neu.edu.ph`
 - `jcesperanza@neu.edu.ph`
+- `internship@neu.edu.ph`
 
-### How it works
-1. Log in with a hybrid account (email/password or Google)
-2. A **Switch Role** toggle appears in the sidebar above the user card
-3. Click **Student** or **Admin** to switch instantly
-4. The entire UI updates — sidebar navigation, dashboard panels, and access permissions all change to match the selected role
-5. The role is saved to Firestore so it persists across page refreshes
-
-### Why this exists
-These accounts serve as both regular user demonstrations and administrative accounts, allowing role behavior to be shown without needing separate logins.
+Switching to **Student** → redirects to Check-In flow  
+Switching to **Admin** → redirects to Dashboard with full access
 
 ---
 
@@ -162,13 +160,13 @@ These accounts serve as both regular user demonstrations and administrative acco
 |---|---|
 | Framework | React 18 + Vite |
 | Routing | react-router-dom v6 |
-| Authentication | Firebase Authentication (Email/Password + Google Sign-In) |
-| Database | Cloud Firestore (NoSQL, real-time via onSnapshot) |
+| Authentication | Firebase Authentication (Email/Password + Google) |
+| Database | Cloud Firestore (real-time via onSnapshot) |
 | Hosting | Vercel (auto-deploy from GitHub) |
-| Styling | Inline CSS + CSS custom properties (no external CSS framework) |
+| Styling | Inline CSS + CSS custom properties |
 | Fonts | Poppins via Google Fonts |
-| QR Code Generation | `qrcode` npm package |
-| QR Code Scanning | Native BarcodeDetector API (Chrome/Android) |
+| QR Code | `qrcode` npm package |
+| QR Scanner | Native BarcodeDetector API (Chrome/Android) |
 | Notifications | react-hot-toast |
 | Date Utilities | date-fns |
 
@@ -179,40 +177,29 @@ These accounts serve as both regular user demonstrations and administrative acco
 ```
 neu-library-logger/
 ├── public/
-│   ├── neu-logo.png               # NEU seal logo
-│   ├── login-bg.png               # Login/register background photo
-│   └── favicon.ico                # Browser tab icon
+│   ├── neu-logo.png
+│   └── login-bg.png
 ├── src/
-│   ├── components/
-│   │   ├── layout/Layout.jsx      # Sidebar, mobile nav, role switcher
-│   │   └── QrScanner.jsx          # Camera-based QR scanner
+│   ├── components/layout/Layout.jsx   # Sidebar + mobile nav (staff only)
 │   ├── firebase/
-│   │   ├── config.js              # Firebase initialization
-│   │   ├── auth.js                # Auth functions (login, Google, register, reset, delete)
-│   │   └── logs.js                # Firestore CRUD and real-time listeners
-│   ├── hooks/
-│   │   └── useAuth.jsx            # Auth context, hybrid role switching, deleted account detection
+│   │   ├── auth.js                    # Login, Google, register, delete
+│   │   └── logs.js                    # Firestore CRUD + listeners
+│   ├── hooks/useAuth.jsx              # Auth context + hybrid role switching
 │   ├── pages/
-│   │   ├── LoginPage.jsx          # Sign in + Google login + forgot password
-│   │   ├── RegisterPage.jsx       # Account registration with dept/program
-│   │   ├── DashboardPage.jsx      # Live stats + admin analytics panel
-│   │   ├── TimeInPage.jsx         # Log a visit (manual or QR scan)
-│   │   ├── LogsPage.jsx           # Full visit history with filters
-│   │   ├── ProfilePage.jsx        # Profile, QR code, change password
-│   │   └── AdminPage.jsx          # User management (admin only)
+│   │   ├── LoginPage.jsx              # Google + email/password login
+│   │   ├── StudentCheckIn.jsx         # Student check-in flow (no sidebar)
+│   │   ├── DashboardPage.jsx          # Staff dashboard + admin stats
+│   │   ├── TimeInPage.jsx             # Manual log visit (staff)
+│   │   ├── LogsPage.jsx               # Visitor logs with filters
+│   │   ├── ReportsPage.jsx            # Analytics and charts
+│   │   ├── ProfilePage.jsx            # Profile + QR code
+│   │   └── AdminPage.jsx              # Manage users
 │   └── utils/
-│       ├── helpers.js             # Date formatters, purpose options
-│       └── departments.js         # NEU colleges and programs data
-├── vercel.json                    # SPA routing config
-└── firestore.rules                # Firestore security rules
+│       ├── helpers.js
+│       └── departments.js             # NEU colleges and programs
+├── vercel.json
+└── firestore.rules
 ```
-
-### Data Flow
-1. User authenticates via Firebase (email/password or Google)
-2. `useAuth` hook listens to Firestore profile via `onSnapshot` for real-time updates
-3. Role stored in user profile controls UI visibility and route access
-4. Hybrid accounts can override their active role without a separate login
-5. Deleted accounts are detected automatically and forced to sign out
 
 ---
 
@@ -223,10 +210,10 @@ neu-library-logger/
 |---|---|---|
 | `uid` | string | Firebase Auth UID |
 | `displayName` | string | Full name |
-| `email` | string | NEU email address |
+| `email` | string | NEU email |
 | `role` | string | student / faculty / librarian / admin |
-| `studentId` | string | Student ID in XX-XXXXX-XXXX format |
-| `department` | string | College code (e.g. CICS, CBE, CAS) |
+| `studentId` | string | XX-XXXXX-XXXX format |
+| `department` | string | College code (e.g. CICS, CBE) |
 | `program` | string | Degree program |
 | `createdAt` | timestamp | Account creation date |
 
@@ -236,27 +223,26 @@ neu-library-logger/
 | `studentId` | string | Visitor's student ID |
 | `studentName` | string | Visitor's full name |
 | `purpose` | string | Reason for visit |
-| `department` | string | Visitor's college (auto-looked up on time-in) |
+| `department` | string | Visitor's college |
 | `program` | string | Visitor's program |
-| `visitorRole` | string | Visitor's role at time of visit |
-| `loggedBy` | string | Name of staff who logged the visit |
-| `loggedByUid` | string | UID of staff who logged the visit |
-| `timeIn` | timestamp | Time of entry |
-| `timeOut` | timestamp / null | Time of exit (null if still inside) |
+| `visitorRole` | string | Role at time of visit |
+| `loggedBy` | string | Name of staff/student who logged |
+| `loggedByUid` | string | UID of who logged |
+| `timeIn` | timestamp | Entry time |
+| `timeOut` | timestamp / null | Exit time |
 | `status` | string | `active` or `completed` |
-| `date` | string | YYYY-MM-DD (for client-side date filtering) |
-| `editedAt` | timestamp | Set when a log entry is edited |
+| `date` | string | YYYY-MM-DD |
 
 ---
 
 ## 8. Authentication & Security
 
 ### Login Methods
-- **Email/Password** — restricted to `@neu.edu.ph` at registration
-- **Google Sign-In** — restricted to `@neu.edu.ph` Google accounts via `hd` parameter
+- **Google Sign-In** — for all users, NEU domain restricted via `hd` parameter
+- **Email/Password** — for staff accounts (librarians, admins)
 
 ### Deleted Account Protection
-When an admin deletes a user from Manage Users, their Firestore profile is removed. On next login attempt, `useAuth` detects the missing profile and immediately signs them out, showing:
+Deleted users are automatically signed out with the message:
 > *"Your account has been removed. Please contact the library administrator."*
 
 ### Firestore Security Rules
@@ -264,7 +250,6 @@ When an admin deletes a user from Manage Users, their Firestore profile is remov
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
     function isAuth() { return request.auth != null; }
     function isAdmin() {
       return isAuth() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
@@ -272,14 +257,12 @@ service cloud.firestore {
     function isStaff() {
       return isAuth() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ["admin", "librarian"];
     }
-
     match /users/{userId} {
       allow read: if isAuth();
       allow create: if isAuth() && request.auth.uid == userId;
       allow update: if isAuth() && (request.auth.uid == userId || isAdmin());
       allow delete: if isAdmin();
     }
-
     match /logs/{logId} {
       allow read: if isAuth();
       allow create: if isAuth();
@@ -290,127 +273,65 @@ service cloud.firestore {
 }
 ```
 
-### Environment Variables
-```
-VITE_FIREBASE_API_KEY
-VITE_FIREBASE_AUTH_DOMAIN
-VITE_FIREBASE_PROJECT_ID
-VITE_FIREBASE_STORAGE_BUCKET
-VITE_FIREBASE_MESSAGING_SENDER_ID
-VITE_FIREBASE_APP_ID
-```
-
 ---
 
 ## 9. Pages & Functionality
 
 ### Login Page (`/login`)
-- Email/password login with `@neu.edu.ph` validation
-- **Google Sign-In** button — NEU domain enforced
-- **"Welcome to NEU Library!"** toast on successful login
-- Forgot password flow — sends Firebase reset email
-- Building background photo with dark overlay
-- Error message shown if account has been deleted by admin
+- **Continue with Google** — primary button for all users
+- Email/password section labeled "Staff / Admin login"
+- Forgot password flow
 
-### Register Page (`/register`)
-- Full name, NEU email, department, program, password
-- Department dropdown cascades into program list
-- Both department and program are required and saved on registration
-- All new accounts start as `student` role
+### Student Check-In (`/checkin`)
+- Shown to students/faculty after Google login
+- Student ID with auto-format, purpose dropdown
+- Dept/program dropdowns appear only if not set in profile
+- Success screen → auto sign-out in 5 seconds
 
-### Dashboard (`/dashboard`)
-- Personalized greeting with current date and time of day
-- 3 stat cards: Currently Inside, Total Today, Completed
-- Live active visitors table — duration updates every 30 seconds
-- Time Out button for staff on active visitors
-- Today's visit log (last 20 entries)
-- **Admin-only statistics panel:**
-  - Date range: Today / This Week / This Month / Custom
-  - Filters: Purpose, College, Employee Type (Teacher/Staff)
-  - 4 stat cards + visit reasons bar chart
+### Dashboard (`/dashboard`) — Staff/Admin
+- Stat cards, live visitors table, today's log
+- Admin-only analytics panel with filters
 
-### Log Visit (`/time-in`)
-- Auto-formatted Student ID field (XX-XXXXX-XXXX)
-- Name autosuggest from visit history
-- Default purpose: Study / Review
-- Duplicate visit prevention with warning banner
-- QR scan button (Chrome/Android)
-- Department/program dropdowns appear if student has none on file — saved to profile on submit
+### Log Visit (`/time-in`) — Staff
+- Manual entry with duplicate prevention and name autosuggest
+- QR scanner for fast check-in
 
-### Visitor Logs (`/logs`) — Staff Only
-- Date range presets + custom picker
-- Search, status filter, CSV export
-- Top 5 Visitors bar chart
-- Edit ✏️ and Time Out 🕐 per row
+### Visitor Logs (`/logs`) — Staff
+- Full history, date filters, CSV export, time-out button
 
-### Profile Page (`/profile`)
-- Edit name, Student ID, department, program — updates instantly
-- QR code — tap to enlarge, download as PNG
-- Change password with re-authentication
-- Personal visit history
+### Reports (`/reports`) — Staff
+- Charts: monthly trend, busiest days, peak hours, purpose breakdown, college breakdown
+- Top visitors table, print and export
 
-### Manage Users (`/admin`) — Admin Only
-- All users with role summary stats
-- Role dropdown per user
-- Delete user with confirmation modal
-- Search by name, email, or student ID
+### Profile (`/profile`) — Staff
+- Edit info, QR code, change password, visit history
+
+### Manage Users (`/admin`) — Admin
+- Role management and user deletion
 
 ---
 
 ## 10. Getting Started
 
-### Prerequisites
-- Node.js v18+
-- Firebase project with Authentication and Firestore enabled
-- Google Sign-In enabled in Firebase Authentication
-
-### Installation
-
 ```bash
-# 1. Clone the repository
 git clone https://github.com/reneespina0929-tech/neu-library-logger.git
 cd neu-library-logger
-
-# 2. Install dependencies
 npm install
-
-# 3. Create environment variables
-cp .env.example .env.local
-# Fill in your Firebase config values
-
-# 4. Start the development server
+cp .env.example .env.local  # add Firebase config
 npm run dev
-# Open http://localhost:5173
 ```
 
 ### Firebase Setup
-1. Create a Firebase project at [console.firebase.google.com](https://console.firebase.google.com)
-2. Enable **Authentication → Sign-in methods → Email/Password** and **Google**
-3. Under Google sign-in, add your domain to authorized domains
-4. Add authorized domains: `localhost` and your Vercel URL
-5. Enable **Firestore Database** and apply the security rules from Section 8
-6. Copy your Firebase config to `.env.local`
-
-### Setting Up the First Admin
-New accounts default to `student`. To create the first admin:
-1. Register an account normally
-2. Go to **Firebase Console → Firestore → users collection**
-3. Find the document for your account
-4. Change the `role` field to `admin`
+1. Enable **Authentication** → Email/Password + Google
+2. Add authorized domains: `localhost` and Vercel URL
+3. Enable **Firestore** and apply security rules from Section 8
 
 ---
 
 ## 11. Deployment
 
-LibraLog uses a continuous deployment pipeline:
+Push to `main` → Vercel auto-builds and deploys within ~60 seconds.
 
-1. Developer pushes to `main` branch on GitHub
-2. Vercel detects the push and triggers a new build
-3. Vite builds the React app for production
-4. Built assets deploy to Vercel's global CDN
-5. Live URL updates within ~60 seconds
-
-### `vercel.json`
 ```json
 { "rewrites": [{ "source": "/(.*)", "destination": "/" }] }
 ```
@@ -421,24 +342,21 @@ LibraLog uses a continuous deployment pipeline:
 
 | Limitation | Details |
 |---|---|
-| QR Scanner | Requires Chrome or Chromium-based browser with a physical camera |
-| Logs Limit | Fetches maximum 500 records per query |
-| College Filter | Only works for logs created after department tracking was added |
-| Initial Admin | First admin must be set manually via Firebase Console |
-| Offline Support | No offline mode — requires active internet connection |
-| Single Library | Designed for one library branch only |
+| QR Scanner | Chrome/Chromium only, requires physical camera |
+| Logs Limit | Max 500 records per query |
+| Auth Deletion | Deleting a user removes Firestore profile but not Firebase Auth account |
+| Offline Support | No offline mode |
+| Single Library | One branch only |
 
 ---
 
 ## 13. Future Enhancements
 
-- [ ] Announcement / notice board for library staff
-- [ ] Seat capacity indicator (e.g. "32 / 50 seats")
+- [ ] Seat capacity indicator
 - [ ] RFID card support via USB reader
-- [ ] Printable monthly visit reports
-- [ ] QR scanner fallback for Safari and Firefox
-- [ ] Multi-branch library support
-- [ ] Email notifications for visit confirmations
+- [ ] QR scanner fallback for Safari/Firefox
+- [ ] Multi-branch support
+- [ ] Printable monthly reports
 
 ---
 

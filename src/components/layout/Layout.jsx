@@ -64,8 +64,8 @@ export default function Layout() {
   const navItems = [
     { to: "/dashboard", label: "Dashboard", shortLabel: "Dashboard", icon: icons.dashboard },
     { to: "/time-in", label: "Log Visit", shortLabel: "Log", icon: icons.visit },
-    ...(isStaff ? [{ to: "/logs", label: "Logs", shortLabel: "Logs", icon: icons.logs }] : []),
-    ...(isStaff ? [{ to: "/reports", label: "Reports", shortLabel: "Reports", icon: icons.reports }] : []),
+    { to: "/logs", label: "Logs", shortLabel: "Logs", icon: icons.logs },
+    { to: "/reports", label: "Reports", shortLabel: "Reports", icon: icons.reports },
     ...(isAdmin ? [{ to: "/admin", label: "Users", shortLabel: "Users", icon: icons.admin }] : []),
     { to: "/profile", label: "Profile", shortLabel: "Profile", icon: icons.profile },
   ];
@@ -99,20 +99,12 @@ export default function Layout() {
 
         {/* Nav */}
         <nav style={{ flex: 1, padding: "14px 12px", overflowY: "auto" }}>
-          <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.25)", letterSpacing: "0.12em", textTransform: "uppercase", padding: "6px 12px 8px", marginBottom: 2 }}>Menu</div>
-
           <NavItem to="/dashboard" label="Dashboard" icon={icons.dashboard} />
           <NavItem to="/time-in" label="Log Visit" icon={icons.visit} />
+          <NavItem to="/logs" label="All Visitor Logs" icon={icons.logs} />
+          <NavItem to="/reports" label="Reports" icon={icons.reports} />
+          {isAdmin && <NavItem to="/admin" label="Manage Users" icon={icons.admin} />}
           <NavItem to="/profile" label="My Profile" icon={icons.profile} />
-
-          {isStaff && (
-            <>
-              <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(201,151,43,0.4)", letterSpacing: "0.12em", textTransform: "uppercase", padding: "16px 12px 8px", marginBottom: 2 }}>Staff Only</div>
-              <NavItem to="/logs" label="All Visitor Logs" icon={icons.logs} gold />
-              <NavItem to="/reports" label="Reports" icon={icons.reports} gold />
-              {isAdmin && <NavItem to="/admin" label="Manage Users" icon={icons.admin} gold />}
-            </>
-          )}
         </nav>
 
         {/* Bottom section */}
