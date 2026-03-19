@@ -12,6 +12,7 @@ export const AuthProvider = ({ children }) => {
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [deleted, setDeleted] = useState(false);
+  const [blocked, setBlocked] = useState(false);
 
   useEffect(() => {
     const timeout = setTimeout(() => setLoading(false), 5000);
@@ -26,8 +27,18 @@ export const AuthProvider = ({ children }) => {
         profileUnsub = onSnapshot(doc(db, "users", firebaseUser.uid), (snap) => {
           if (snap.exists()) {
             const profile = snap.data();
+            // Check if user is blocked
+            if (profile.blocked) {
+              setBlocked(true);
+              setUser(null);
+              setUserProfile(null);
+              logoutUser();
+              setLoading(false);
+              return;
+            }
             setUser(firebaseUser);
             setUserProfile(profile);
+            setBlocked(false);
             profileMissing = false;
             setLoading(false);
           } else {
@@ -60,7 +71,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, userProfile, loading, deleted }}>
+    <AuthContext.Provider value={{ user, userProfile, loading, deleted, blocked }}>
       {children}
     </AuthContext.Provider>
   );

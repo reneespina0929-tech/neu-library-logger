@@ -42,9 +42,10 @@ const StudentRoute = ({ children }) => {
 };
 
 const PublicRoute = ({ children }) => {
-  const { user, userProfile, loading, deleted } = useAuth();
+  const { user, userProfile, loading, deleted, blocked } = useAuth();
   if (loading) return <LoadingScreen />;
   if (deleted) return <LoginPage deletedAccount />;
+  if (blocked) return <LoginPage blockedAccount />;
   if (user) {
     const role = userProfile?.role;
     if (role === "student" || role === "faculty") return <Navigate to="/checkin" replace />;

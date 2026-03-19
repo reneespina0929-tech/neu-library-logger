@@ -9,7 +9,7 @@ const LogoIcon = ({ size = 40 }) => (
     style={{ objectFit: "contain", display: "block" }} />
 );
 
-export default function LoginPage({ deletedAccount = false }) {
+export default function LoginPage({ deletedAccount = false, blockedAccount = false }) {
   const navigate = useNavigate();
 
   const handleGoogle = async () => {
@@ -22,6 +22,12 @@ export default function LoginPage({ deletedAccount = false }) {
       toast.error("Sign-in failed. Make sure you use your NEU email (@neu.edu.ph).");
     }
   };
+
+  const errorMessage = blockedAccount
+    ? "Your account has been blocked. Please contact the library administrator to regain access."
+    : deletedAccount
+    ? "Your account has been removed. Please contact the library administrator."
+    : null;
 
   return (
     <div style={{
@@ -54,11 +60,11 @@ export default function LoginPage({ deletedAccount = false }) {
             Use your NEU Google account to continue
           </p>
 
-          {/* Deleted account error */}
-          {deletedAccount && (
+          {/* Error message */}
+          {errorMessage && (
             <div style={{ background: "rgba(217,57,43,0.15)", border: "1px solid rgba(217,57,43,0.4)", borderRadius: 8, padding: "10px 14px", color: "#ff8a80", fontSize: 13, display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0 }}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-              Your account has been removed. Please contact the library administrator.
+              {errorMessage}
             </div>
           )}
 
