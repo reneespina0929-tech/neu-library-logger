@@ -21,7 +21,7 @@ const icons = {
 
 const pageTitles = {
   "/dashboard": "Dashboard", "/time-in": "Log Visit",
-  "/logs": "Visitor Logs", "/reports": "Reports", "/profile": "My Profile", "/admin": "Manage Users",
+  "/logs": "Visitor Logs", "/reports": "Reports", "/admin": "Manage Users",
 };
 
 const NavItem = ({ to, label, icon, gold = false }) => (
@@ -67,7 +67,6 @@ export default function Layout() {
     { to: "/logs", label: "Logs", shortLabel: "Logs", icon: icons.logs },
     { to: "/reports", label: "Reports", shortLabel: "Reports", icon: icons.reports },
     ...(isAdmin ? [{ to: "/admin", label: "Users", shortLabel: "Users", icon: icons.admin }] : []),
-    { to: "/profile", label: "Profile", shortLabel: "Profile", icon: icons.profile },
   ];
 
   return (
@@ -104,7 +103,6 @@ export default function Layout() {
           <NavItem to="/logs" label="All Visitor Logs" icon={icons.logs} />
           <NavItem to="/reports" label="Reports" icon={icons.reports} />
           {isAdmin && <NavItem to="/admin" label="Manage Users" icon={icons.admin} />}
-          <NavItem to="/profile" label="My Profile" icon={icons.profile} />
         </nav>
 
         {/* Bottom section */}

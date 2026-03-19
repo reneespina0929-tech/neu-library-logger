@@ -8,7 +8,6 @@ import DashboardPage from "./pages/DashboardPage";
 import LogsPage from "./pages/LogsPage";
 import ReportsPage from "./pages/ReportsPage";
 import TimeInPage from "./pages/TimeInPage";
-import ProfilePage from "./pages/ProfilePage";
 import AdminPage from "./pages/AdminPage";
 import StudentCheckIn from "./pages/StudentCheckIn";
 import Layout from "./components/layout/Layout";
@@ -92,7 +91,6 @@ function App() {
             <Route path="time-in" element={<TimeInPage />} />
             <Route path="logs" element={<LogsPage />} />
             <Route path="reports" element={<ReportsPage />} />
-            <Route path="profile" element={<ProfilePage />} />
             <Route path="admin" element={<AdminPage />} />
           </Route>
 
