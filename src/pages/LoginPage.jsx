@@ -47,7 +47,7 @@ export default function LoginPage({ deletedAccount = false, blockedAccount = fal
           <h1 style={{ color: "var(--gold)", fontFamily: "'Poppins',sans-serif", fontSize: 28, marginTop: 14, marginBottom: 4, fontWeight: 700 }}>
             LibraLog
           </h1>
-          <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 13 }}>New Era University Library System</p>
+          <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 13 }}>New Era University Library</p>
         </div>
 
         {/* Card */}
