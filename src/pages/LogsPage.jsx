@@ -53,12 +53,23 @@ export default function LogsPage() {
   const handleDateFromChange = (val) => { setDateFrom(val); setActivePreset(""); };
   const handleDateToChange = (val) => { setDateTo(val); setActivePreset(""); };
 
+  const getLogDate = (log) => {
+    // Use log.date if available, otherwise derive from timeIn timestamp
+    if (log.date) return log.date;
+    if (log.timeIn) {
+      const d = log.timeIn.toDate ? log.timeIn.toDate() : new Date(log.timeIn);
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    }
+    return "";
+  };
+
   const filtered = logs.filter(log => {
     const q = search.toLowerCase();
     const matchSearch = !search || log.studentName?.toLowerCase().includes(q) || log.studentId?.toLowerCase().includes(q) || log.purpose?.toLowerCase().includes(q);
     const matchStatus = statusFilter === "all" || log.status === statusFilter;
-    const matchFrom = !dateFrom || (log.date && log.date >= dateFrom);
-    const matchTo = !dateTo || (log.date && log.date <= dateTo);
+    const logDate = getLogDate(log);
+    const matchFrom = !dateFrom || logDate >= dateFrom;
+    const matchTo = !dateTo || logDate <= dateTo;
     return matchSearch && matchStatus && matchFrom && matchTo;
   });
 
