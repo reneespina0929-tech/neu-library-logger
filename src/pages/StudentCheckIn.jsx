@@ -54,8 +54,6 @@ export default function StudentCheckIn() {
   const hasDept = !!(userProfile?.department);
   const programs = dept ? DEPARTMENTS[dept]?.programs || [] : [];
 
-  const [logId, setLogId] = useState(null);
-  const [timingOut, setTimingOut] = useState(false);
 
   const handleSubmit = async () => {
     setError("");
