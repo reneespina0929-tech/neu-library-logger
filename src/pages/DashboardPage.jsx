@@ -207,16 +207,14 @@ export default function DashboardPage() {
             {/* Range selector */}
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center", marginBottom: 12 }}>
               <span style={{ fontSize: 12, fontWeight: 600, color: "var(--gray-400)", marginRight: 4 }}>Range:</span>
-              {[["today","Today"],["week","This Week"],["month","This Month"],["custom","Custom"]].map(([val, label]) => (
+              {[["today","Today"],["week","This Week"],["month","This Month"]].map(([val, label]) => (
                 <button key={val} className={`range-btn${statsRange === val ? " active" : ""}`} onClick={() => setStatsRange(val)}>{label}</button>
               ))}
-              {statsRange === "custom" && (
-                <div style={{ display: "flex", alignItems: "center", gap: 6, marginLeft: 4 }}>
-                  <input type="date" value={statsFrom} onChange={e => setStatsFrom(e.target.value)} className="filter-select" style={{ padding: "5px 8px" }} />
-                  <span style={{ color: "var(--gray-400)", fontSize: 12 }}>to</span>
-                  <input type="date" value={statsTo} onChange={e => setStatsTo(e.target.value)} className="filter-select" style={{ padding: "5px 8px" }} />
-                </div>
-              )}
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginLeft: 4 }}>
+                <input type="date" value={statsFrom} onChange={e => { setStatsFrom(e.target.value); setStatsRange("custom"); }} className="filter-select" style={{ padding: "5px 8px" }} />
+                <span style={{ color: "var(--gray-400)", fontSize: 12 }}>to</span>
+                <input type="date" value={statsTo} onChange={e => { setStatsTo(e.target.value); setStatsRange("custom"); }} className="filter-select" style={{ padding: "5px 8px" }} />
+              </div>
             </div>
 
             {/* Filters */}
