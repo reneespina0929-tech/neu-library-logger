@@ -54,6 +54,8 @@ export default function StudentCheckIn() {
   const hasDept = !!(userProfile?.department);
   const programs = dept ? DEPARTMENTS[dept]?.programs || [] : [];
 
+  const [logId, setLogId] = useState(null);
+  const [timingOut, setTimingOut] = useState(false);
 
   const handleSubmit = async () => {
     setError("");
@@ -180,14 +182,7 @@ export default function StudentCheckIn() {
             }}>
               {timingOut ? "Timing out..." : "⏱ Time Out & Leave"}
             </button>
-            <button onClick={() => logoutUser()} style={{
-              padding: "9px 24px", background: "transparent",
-              color: "rgba(255,255,255,0.45)", fontWeight: 500, fontSize: 13,
-              borderRadius: 8, cursor: "pointer", border: "1px solid rgba(255,255,255,0.15)",
-              fontFamily: "'Poppins',sans-serif",
-            }}>
-              Stay inside — sign out only
-            </button>
+
           </div>
         </div>
       </div>
