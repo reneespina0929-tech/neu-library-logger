@@ -9,6 +9,7 @@ import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { format } from "date-fns";
 import QRCode from "qrcode";
+import toast from "react-hot-toast";
 
 const LogoIcon = ({ size = 40 }) => (
   <img src="/neu-logo.png" width={size} height={size} alt="NEU Logo"
@@ -26,8 +27,9 @@ export default function StudentCheckIn() {
   const [error, setError] = useState("");
   const [checkedIn, setCheckedIn] = useState(false);
   const [checkInTime, setCheckInTime] = useState(null);
-  const [countdown, setCountdown] = useState(5);
   const [qrUrl, setQrUrl] = useState("");
+  const [logId, setLogId] = useState(null);
+  const [timingOut, setTimingOut] = useState(false);
   const qrCanvasRef = useRef(null);
 
   // Auto-format student ID as XX-XXXXX-XXXX
@@ -52,13 +54,8 @@ export default function StudentCheckIn() {
   const hasDept = !!(userProfile?.department);
   const programs = dept ? DEPARTMENTS[dept]?.programs || [] : [];
 
-  // Auto sign out countdown after check-in
-  useEffect(() => {
-    if (!checkedIn) return;
-    if (countdown <= 0) { logoutUser(); return; }
-    const t = setTimeout(() => setCountdown(c => c - 1), 1000);
-    return () => clearTimeout(t);
-  }, [checkedIn, countdown]);
+  const [logId, setLogId] = useState(null);
+  const [timingOut, setTimingOut] = useState(false);
 
   const handleSubmit = async () => {
     setError("");
@@ -78,14 +75,14 @@ export default function StudentCheckIn() {
         });
       }
 
-      await timeIn(
+      const newLogId = await timeIn(
         studentId.trim().toUpperCase(),
         userProfile?.displayName || user?.displayName || user?.email,
         purpose,
         userProfile?.displayName || user?.email,
         user?.uid
       );
-
+      setLogId(newLogId);
       setCheckInTime(new Date());
       setCheckedIn(true);
 
@@ -161,17 +158,39 @@ export default function StudentCheckIn() {
             </div>
           )}
 
-          <button onClick={() => logoutUser()} style={{
-            padding: "12px 32px", background: "var(--gold)", color: "var(--navy)",
-            fontWeight: 700, fontSize: 15, borderRadius: 10, cursor: "pointer",
-            fontFamily: "'Poppins',sans-serif", marginBottom: 12, border: "none",
-            boxShadow: "0 4px 14px rgba(201,151,43,0.4)",
-          }}>
-            Done
-          </button>
-          <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 12 }}>
-            Auto signing out in {countdown}s...
-          </p>
+          {/* Buttons */}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+            <button onClick={async () => {
+              if (!logId) { await logoutUser(); return; }
+              setTimingOut(true);
+              try {
+                const { timeOut } = await import("../firebase/logs");
+                await timeOut(logId);
+                toast.success("You've been timed out. Goodbye!");
+              } catch {
+                toast.error("Failed to time out. Please ask the librarian.");
+              } finally {
+                setTimingOut(false);
+                await logoutUser();
+              }
+            }} disabled={timingOut} style={{
+              padding: "12px 36px", background: "linear-gradient(135deg, #1a9a5c, #16a34a)",
+              color: "white", fontWeight: 700, fontSize: 15, borderRadius: 10,
+              cursor: timingOut ? "not-allowed" : "pointer", border: "none",
+              fontFamily: "'Poppins',sans-serif", opacity: timingOut ? 0.7 : 1,
+              boxShadow: "0 4px 14px rgba(26,154,92,0.4)",
+            }}>
+              {timingOut ? "Timing out..." : "⏱ Time Out & Leave"}
+            </button>
+            <button onClick={() => logoutUser()} style={{
+              padding: "9px 24px", background: "transparent",
+              color: "rgba(255,255,255,0.45)", fontWeight: 500, fontSize: 13,
+              borderRadius: 8, cursor: "pointer", border: "1px solid rgba(255,255,255,0.15)",
+              fontFamily: "'Poppins',sans-serif",
+            }}>
+              Stay inside — sign out only
+            </button>
+          </div>
         </div>
       </div>
     );
