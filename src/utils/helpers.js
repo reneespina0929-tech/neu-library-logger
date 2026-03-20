@@ -22,7 +22,7 @@ export const formatDuration = (timeIn, timeOut) => {
       : new Date(timeOut)
     : new Date();
   const diffMs = end - start;
-  const mins = Math.floor(diffMs / 60000);
+  const mins = Math.max(0, Math.floor(diffMs / 60000)); // clamp to 0 minimum
   if (mins < 60) return `${mins}m`;
   const hrs = Math.floor(mins / 60);
   const rem = mins % 60;
