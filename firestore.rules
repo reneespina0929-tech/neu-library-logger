@@ -20,7 +20,7 @@ service cloud.firestore {
     match /logs/{logId} {
       allow read: if isAuth();
       allow create: if isAuth();
-      allow update: if isStaff();
+      allow update: if isStaff() || (isAuth() && resource.data.loggedByUid == request.auth.uid);
       allow delete: if isAdmin();
     }
   }
