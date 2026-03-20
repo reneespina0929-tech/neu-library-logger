@@ -54,13 +54,13 @@ export default function LogsPage() {
   const handleDateToChange = (val) => { setDateTo(val); setActivePreset(""); };
 
   const getLogDate = (log) => {
-    // Use log.date if available, otherwise derive from timeIn timestamp
-    if (log.date) return log.date;
+    // Always derive date from timeIn timestamp using local timezone
+    // (log.date was saved in UTC which is wrong for PH timezone)
     if (log.timeIn) {
       const d = log.timeIn.toDate ? log.timeIn.toDate() : new Date(log.timeIn);
       return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
     }
-    return "";
+    return log.date || "";
   };
 
   const filtered = logs.filter(log => {
