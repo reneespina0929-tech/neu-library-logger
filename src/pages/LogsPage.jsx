@@ -5,27 +5,21 @@ import { useAuth } from "../hooks/useAuth.jsx";
 import { formatTimestamp, formatDate, formatDuration, getTodayDateString } from "../utils/helpers";
 import toast from "react-hot-toast";
 
+const toLocalDate = (d) =>
+  `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+
 const PRESETS = [
   { label: "Today", getValue: () => { const t = getTodayDateString(); return { from: t, to: t }; } },
-{ label: "This Week",
-  getValue: () => {
+  { label: "This Week", getValue: () => {
     const now = new Date();
     const mon = new Date(now);
     mon.setDate(now.getDate() - (now.getDay() === 0 ? 6 : now.getDay() - 1));
-    mon.setHours(0, 0, 0, 0);
-    const sun = new Date(mon);
-    sun.setDate(mon.getDate() + 6);
-    sun.setHours(23, 59, 59, 999);
-    // Return ISO date strings so the filter comparison works correctly
-    return {
-      from: mon.toISOString().split("T")[0],
-      to: sun.toISOString().split("T")[0],
-    };
+    return { from: toLocalDate(mon), to: getTodayDateString() };
   }},
   { label: "This Month", getValue: () => {
     const now = new Date();
     const first = new Date(now.getFullYear(), now.getMonth(), 1);
-    return { from: first.toISOString().split("T")[0], to: getTodayDateString() };
+    return { from: toLocalDate(first), to: getTodayDateString() };
   }},
   { label: "All Time", getValue: () => ({ from: "", to: "" }) },
 ];
