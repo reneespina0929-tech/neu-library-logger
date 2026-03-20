@@ -208,7 +208,21 @@ export default function DashboardPage() {
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center", marginBottom: 12 }}>
               <span style={{ fontSize: 12, fontWeight: 600, color: "var(--gray-400)", marginRight: 4 }}>Range:</span>
               {[["today","Today"],["week","This Week"],["month","This Month"]].map(([val, label]) => (
-                <button key={val} className={`range-btn${statsRange === val ? " active" : ""}`} onClick={() => setStatsRange(val)}>{label}</button>
+                <button key={val} className={`range-btn${statsRange === val ? " active" : ""}`} onClick={() => {
+                  const now = new Date();
+                  if (val === "today") {
+                    setStatsFrom(today); setStatsTo(today);
+                  } else if (val === "week") {
+                    const day = now.getDay();
+                    const diff = day === 0 ? -6 : 1 - day;
+                    const mon = new Date(now); mon.setDate(now.getDate() + diff);
+                    setStatsFrom(mon.toISOString().split("T")[0]); setStatsTo(today);
+                  } else if (val === "month") {
+                    const first = new Date(now.getFullYear(), now.getMonth(), 1);
+                    setStatsFrom(first.toISOString().split("T")[0]); setStatsTo(today);
+                  }
+                  setStatsRange(val);
+                }}>{label}</button>
               ))}
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginLeft: 4 }}>
                 <input type="date" value={statsFrom} onChange={e => { setStatsFrom(e.target.value); setStatsRange("custom"); }} className="filter-select" style={{ padding: "5px 8px" }} />
