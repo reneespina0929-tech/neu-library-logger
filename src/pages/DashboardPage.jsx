@@ -50,11 +50,11 @@ export default function DashboardPage() {
       const day = now.getDay();
       const diff = day === 0 ? -6 : 1 - day;
       const mon = new Date(now); mon.setDate(now.getDate() + diff);
-      return { from: mon.toISOString().split("T")[0], to: today };
+      return { from: mon.toLocaleDateString("en-CA"), to: today };
     }
     if (statsRange === "month") {
       const first = new Date(now.getFullYear(), now.getMonth(), 1);
-      return { from: first.toISOString().split("T")[0], to: today };
+      return { from: first.toLocaleDateString("en-CA"), to: today };
     }
     return { from: statsFrom, to: statsTo };
   };
@@ -216,10 +216,10 @@ export default function DashboardPage() {
                     const day = now.getDay();
                     const diff = day === 0 ? -6 : 1 - day;
                     const mon = new Date(now); mon.setDate(now.getDate() + diff);
-                    setStatsFrom(mon.toISOString().split("T")[0]); setStatsTo(today);
+                    setStatsFrom(mon.toLocaleDateString("en-CA")); setStatsTo(today);
                   } else if (val === "month") {
                     const first = new Date(now.getFullYear(), now.getMonth(), 1);
-                    setStatsFrom(first.toISOString().split("T")[0]); setStatsTo(today);
+                    setStatsFrom(first.toLocaleDateString("en-CA")); setStatsTo(today);
                   }
                   setStatsRange(val);
                 }}>{label}</button>
