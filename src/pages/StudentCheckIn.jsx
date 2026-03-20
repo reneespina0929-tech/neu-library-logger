@@ -19,16 +19,21 @@ const LogoIcon = ({ size = 40 }) => (
 export default function StudentCheckIn() {
   const { user, userProfile } = useAuth();
 
-  const [purpose, setPurpose] = useState("Study / Review");
   const [dept, setDept] = useState(userProfile?.department || "");
   const [program, setProgram] = useState(userProfile?.program || "");
   const [studentId, setStudentId] = useState(userProfile?.studentId || "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [checkedIn, setCheckedIn] = useState(false);
-  const [checkInTime, setCheckInTime] = useState(null);
-  const [qrUrl, setQrUrl] = useState("");
-  const [logId, setLogId] = useState(null);
+
+  // Persist check-in state across refreshes using localStorage
+  const getSaved = () => { try { return JSON.parse(localStorage.getItem("neu_checkin") || "null"); } catch { return null; } };
+  const saved = getSaved();
+
+  const [purpose, setPurpose] = useState(saved?.purpose || "Study / Review");
+  const [checkedIn, setCheckedIn] = useState(saved?.checkedIn || false);
+  const [checkInTime, setCheckInTime] = useState(saved?.checkInTime ? new Date(saved.checkInTime) : null);
+  const [qrUrl, setQrUrl] = useState(saved?.qrUrl || "");
+  const [logId, setLogId] = useState(saved?.logId || null);
   const [timingOut, setTimingOut] = useState(false);
   const qrCanvasRef = useRef(null);
 
@@ -84,11 +89,23 @@ export default function StudentCheckIn() {
       setCheckInTime(new Date());
       setCheckedIn(true);
 
+      // Persist to localStorage so refresh keeps the success screen
+      localStorage.setItem("neu_checkin", JSON.stringify({
+        checkedIn: true,
+        logId: newLogId,
+        checkInTime: new Date().toISOString(),
+        purpose,
+        qrUrl: "",
+      }));
+
       // Generate QR code — encodes as "studentId|studentName"
       const qrData = `${studentId.trim().toUpperCase()}|${userProfile?.displayName || user?.displayName || ""}`;
       try {
         const url = await QRCode.toDataURL(qrData, { width: 200, margin: 1, color: { dark: "#0d1f3c", light: "#ffffff" } });
         setQrUrl(url);
+        // Update localStorage with qrUrl
+        const existing = getSaved();
+        if (existing) localStorage.setItem("neu_checkin", JSON.stringify({ ...existing, qrUrl: url }));
       } catch { /* silently skip if QR fails */ }
     } catch (err) {
       setError("Failed to log visit. Please try again.");
@@ -169,6 +186,7 @@ export default function StudentCheckIn() {
                 toast.error("Failed to time out. Please ask the librarian.");
               } finally {
                 setTimingOut(false);
+                localStorage.removeItem("neu_checkin");
                 await logoutUser();
               }
             }} disabled={timingOut} style={{
@@ -292,7 +310,7 @@ export default function StudentCheckIn() {
 
         {/* Sign out link */}
         <p style={{ textAlign: "center", marginTop: 16 }}>
-          <button onClick={() => logoutUser()} style={{ background: "none", color: "rgba(255,255,255,0.35)", fontSize: 12, cursor: "pointer", fontFamily: "'Poppins',sans-serif" }}>
+          <button onClick={() => { localStorage.removeItem("neu_checkin"); logoutUser(); }} style={{ background: "none", color: "rgba(255,255,255,0.35)", fontSize: 12, cursor: "pointer", fontFamily: "'Poppins',sans-serif" }}>
             Not you? Sign out
           </button>
         </p>
