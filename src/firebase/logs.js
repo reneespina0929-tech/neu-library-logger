@@ -74,7 +74,7 @@ export const timeIn = async (studentId, studentName, purpose, loggedBy, loggedBy
     timeIn: serverTimestamp(),
     timeOut: null,
     status: "active",
-    date: new Date().toISOString().split("T")[0],
+    date: (() => { const n = new Date(); return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,"0")}-${String(n.getDate()).padStart(2,"0")}`; })(),
   });
   return docRef.id;
 };
@@ -114,7 +114,14 @@ export const subscribeLogs = (callback, dateFilter = null) => {
   return onSnapshot(q, (snapshot) => {
     let logs = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
     if (dateFilter) {
-      logs = logs.filter((l) => l.date === dateFilter);
+      logs = logs.filter((l) => {
+        if (l.timeIn) {
+          const d = l.timeIn.toDate ? l.timeIn.toDate() : new Date(l.timeIn);
+          const localDate = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+          return localDate === dateFilter;
+        }
+        return l.date === dateFilter;
+      });
     }
     callback(logs);
   });

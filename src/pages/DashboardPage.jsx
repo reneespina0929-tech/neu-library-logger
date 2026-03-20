@@ -60,11 +60,20 @@ export default function DashboardPage() {
   };
 
   // Filter logs for admin stats
+  const getLogLocalDate = (log) => {
+    if (log.timeIn) {
+      const d = log.timeIn.toDate ? log.timeIn.toDate() : new Date(log.timeIn);
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    }
+    return log.date || "";
+  };
+
   const statsLogs = (() => {
     if (!isAdmin) return [];
     const { from, to } = getStatsDateRange();
     return allLogs.filter(log => {
-      const matchDate = (!from || log.date >= from) && (!to || log.date <= to);
+      const logDate = getLogLocalDate(log);
+      const matchDate = (!from || logDate >= from) && (!to || logDate <= to);
       const matchPurpose = !filterPurpose || log.purpose === filterPurpose;
       const matchCollege = !filterCollege || log.department === filterCollege;
       const matchEmployee = !filterEmployee || (() => {
