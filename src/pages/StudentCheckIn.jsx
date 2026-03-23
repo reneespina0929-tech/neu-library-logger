@@ -123,85 +123,88 @@ export default function StudentCheckIn() {
         padding: 20, position: "relative",
       }}>
         <div style={{ position: "absolute", inset: 0, background: "rgba(13,31,60,0.72)" }} />
-        <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 400, textAlign: "center" }} className="fade-in">
+        <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 440 }} className="fade-in">
+          {/* White card */}
+          <div style={{ background: "white", borderRadius: 20, padding: "36px 32px", boxShadow: "0 24px 60px rgba(0,0,0,0.4)", textAlign: "center" }}>
 
-          {/* Success icon */}
-          <div style={{ width: 72, height: 72, borderRadius: "50%", background: "rgba(26,154,92,0.15)", border: "2px solid rgba(26,154,92,0.4)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#1a9a5c" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          </div>
-
-          <h1 style={{ color: "white", fontFamily: "'Poppins',sans-serif", fontSize: 22, fontWeight: 700, marginBottom: 4 }}>
-            Hi, {userProfile?.displayName?.split(" ")[0] || user?.displayName?.split(" ")[0] || "Student"}!
-          </h1>
-          <p style={{ color: "#c9972b", fontSize: 18, fontWeight: 600, marginBottom: 4, fontFamily: "'Poppins',sans-serif" }}>
-            Welcome to NEU Library!
-          </p>
-          <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 13, marginBottom: 4, fontFamily: "'Poppins',sans-serif" }}>
-            {purpose}
-          </p>
-          {checkInTime && (
-            <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 12, marginBottom: 24, fontFamily: "'Poppins',sans-serif" }}>
-              Checked in at {format(checkInTime, "hh:mm a")} · {format(checkInTime, "MMMM d, yyyy")}
-            </p>
-          )}
-
-          {/* QR Code */}
-          {qrUrl && (
-            <div style={{ marginBottom: 20 }}>
-              <div style={{ background: "white", borderRadius: 12, padding: 12, display: "inline-block", boxShadow: "0 4px 20px rgba(0,0,0,0.3)" }}>
-                <img src={qrUrl} alt="Your QR Code" width={140} height={140} style={{ display: "block" }} />
-              </div>
-              <div style={{ marginTop: 10, padding: "10px 14px", background: "rgba(255,255,255,0.07)", borderRadius: 8, border: "1px solid rgba(255,255,255,0.12)", textAlign: "left" }}>
-                <p style={{ fontSize: 12, fontWeight: 600, color: "white", margin: "0 0 3px", fontFamily: "'Poppins',sans-serif" }}>📲 Save your QR code</p>
-                <p style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", margin: 0, lineHeight: 1.5, fontFamily: "'Poppins',sans-serif" }}>Show this to the librarian on your next visit for faster check-in — no need to type your Student ID.</p>
-              </div>
-              <button onClick={() => {
-                const a = document.createElement("a");
-                a.href = qrUrl;
-                a.download = `neu-library-qr-${studentId}.png`;
-                a.click();
-              }} style={{
-                marginTop: 10, display: "inline-flex", alignItems: "center", gap: 6,
-                padding: "7px 16px", background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)", borderRadius: 8,
-                color: "white", fontSize: 12, fontWeight: 600, cursor: "pointer",
-                fontFamily: "'Poppins',sans-serif",
-              }}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                Save QR Code
-              </button>
+            {/* Success icon */}
+            <div style={{ width: 68, height: 68, borderRadius: "50%", background: "rgba(26,154,92,0.1)", border: "2px solid rgba(26,154,92,0.3)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 18px" }}>
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#1a9a5c" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
-          )}
 
-          {/* Time Out button — stays logged in, resets to form */}
-          <button onClick={async () => {
-            if (!logId) { setCheckedIn(false); localStorage.removeItem("neu_checkin"); return; }
-            setTimingOut(true);
-            try {
-              const { timeOut } = await import("../firebase/logs");
-              await timeOut(logId);
-              toast.success("Timed out successfully. Have a great day!");
-            } catch {
-              toast.error("Failed to time out. Please ask the librarian.");
-            } finally {
-              setTimingOut(false);
-              localStorage.removeItem("neu_checkin");
-              setCheckedIn(false);
-              setStudentId(userProfile?.studentId || "");
-              setPurpose("Study / Review");
-              setQrUrl("");
-              setLogId(null);
-            }
-          }} disabled={timingOut} style={{
-            padding: "12px 36px", background: "linear-gradient(135deg, #1a9a5c, #16a34a)",
-            color: "white", fontWeight: 700, fontSize: 15, borderRadius: 10,
-            cursor: timingOut ? "not-allowed" : "pointer", border: "none",
-            fontFamily: "'Poppins',sans-serif", opacity: timingOut ? 0.7 : 1,
-            boxShadow: "0 4px 14px rgba(26,154,92,0.4)",
-          }}>
-            {timingOut ? "Timing out..." : "⏱ Time Out"}
-          </button>
+            <h1 style={{ color: "#0d1f3c", fontFamily: "'Poppins',sans-serif", fontSize: 21, fontWeight: 700, marginBottom: 4 }}>
+              Hi, {userProfile?.displayName?.split(" ")[0] || user?.displayName?.split(" ")[0] || "Student"}!
+            </h1>
+            <p style={{ color: "#c9972b", fontSize: 16, fontWeight: 600, marginBottom: 4, fontFamily: "'Poppins',sans-serif" }}>
+              Welcome to NEU Library!
+            </p>
+            <p style={{ color: "#888", fontSize: 13, marginBottom: 4, fontFamily: "'Poppins',sans-serif" }}>
+              {purpose}
+            </p>
+            {checkInTime && (
+              <p style={{ color: "#aaa", fontSize: 12, marginBottom: 20, fontFamily: "'Poppins',sans-serif" }}>
+                Checked in at {format(checkInTime, "hh:mm a")} · {format(checkInTime, "MMMM d, yyyy")}
+              </p>
+            )}
 
+            {/* QR Code */}
+            {qrUrl && (
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ background: "#f8f9fb", borderRadius: 12, padding: 12, display: "inline-block", border: "1px solid #eee" }}>
+                  <img src={qrUrl} alt="Your QR Code" width={140} height={140} style={{ display: "block" }} />
+                </div>
+                <div style={{ marginTop: 10, padding: "10px 14px", background: "#f8f9fb", borderRadius: 8, border: "1px solid #eee", textAlign: "left" }}>
+                  <p style={{ fontSize: 12, fontWeight: 600, color: "#0d1f3c", margin: "0 0 3px", fontFamily: "'Poppins',sans-serif" }}>📲 Save your QR code</p>
+                  <p style={{ fontSize: 11, color: "#888", margin: 0, lineHeight: 1.5, fontFamily: "'Poppins',sans-serif" }}>Show this to the librarian on your next visit for faster check-in — no need to type your Student ID.</p>
+                </div>
+                <button onClick={() => {
+                  const a = document.createElement("a");
+                  a.href = qrUrl;
+                  a.download = `neu-library-qr-${studentId}.png`;
+                  a.click();
+                }} style={{
+                  marginTop: 10, display: "inline-flex", alignItems: "center", gap: 6,
+                  padding: "7px 16px", background: "white",
+                  border: "1px solid #e0e0e0", borderRadius: 8,
+                  color: "#0d1f3c", fontSize: 12, fontWeight: 600, cursor: "pointer",
+                  fontFamily: "'Poppins',sans-serif",
+                }}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Save QR Code
+                </button>
+              </div>
+            )}
+
+            {/* Time Out button */}
+            <button onClick={async () => {
+              if (!logId) { setCheckedIn(false); localStorage.removeItem("neu_checkin"); return; }
+              setTimingOut(true);
+              try {
+                const { timeOut } = await import("../firebase/logs");
+                await timeOut(logId);
+                toast.success("Timed out successfully. Have a great day!");
+              } catch {
+                toast.error("Failed to time out. Please ask the librarian.");
+              } finally {
+                setTimingOut(false);
+                localStorage.removeItem("neu_checkin");
+                setCheckedIn(false);
+                setStudentId(userProfile?.studentId || "");
+                setPurpose("Study / Review");
+                setQrUrl("");
+                setLogId(null);
+              }
+            }} disabled={timingOut} style={{
+              width: "100%", padding: "12px", background: "linear-gradient(135deg, #1a9a5c, #16a34a)",
+              color: "white", fontWeight: 700, fontSize: 14, borderRadius: 10,
+              cursor: timingOut ? "not-allowed" : "pointer", border: "none",
+              fontFamily: "'Poppins',sans-serif", opacity: timingOut ? 0.7 : 1,
+              boxShadow: "0 4px 14px rgba(26,154,92,0.35)",
+            }}>
+              {timingOut ? "Timing out..." : "⏱ Time Out"}
+            </button>
+
+          </div>
         </div>
       </div>
     );
