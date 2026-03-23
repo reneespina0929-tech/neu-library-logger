@@ -5,7 +5,7 @@ import { logoutUser } from "../firebase/auth";
 import { timeIn } from "../firebase/logs";
 import { purposeOptions } from "../utils/helpers";
 import { DEPARTMENTS, DEPT_KEYS } from "../utils/departments";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { format } from "date-fns";
 import QRCode from "qrcode";
@@ -36,6 +36,23 @@ export default function StudentCheckIn() {
   const [logId, setLogId] = useState(saved?.logId || null);
   const [timingOut, setTimingOut] = useState(false);
   const qrCanvasRef = useRef(null);
+
+  // Watch log in Firestore — if admin times out the student externally, reset the success screen
+  useEffect(() => {
+    if (!checkedIn || !logId) return;
+    const unsub = onSnapshot(doc(db, "logs", logId), (snap) => {
+      if (snap.exists() && snap.data().status === "completed") {
+        toast("You've been timed out by the librarian.", { icon: "⏱" });
+        localStorage.removeItem("neu_checkin");
+        setCheckedIn(false);
+        setStudentId(userProfile?.studentId || "");
+        setPurpose("Study / Review");
+        setQrUrl("");
+        setLogId(null);
+      }
+    });
+    return () => unsub();
+  }, [checkedIn, logId]);
 
   // Auto-format student ID as XX-XXXXX-XXXX
   const formatStudentId = (raw) => {
