@@ -16,6 +16,74 @@ const LogoIcon = ({ size = 40 }) => (
     style={{ objectFit: "contain", display: "block" }} />
 );
 
+function StudentIdEditor({ studentId, logId, displayName, onUpdate }) {
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState(studentId);
+  const [saving, setSaving] = useState(false);
+
+  const formatId = (raw) => {
+    const digits = raw.replace(/\D/g, "");
+    if (digits.length <= 2) return digits;
+    if (digits.length <= 7) return `${digits.slice(0, 2)}-${digits.slice(2)}`;
+    return `${digits.slice(0, 2)}-${digits.slice(2, 7)}-${digits.slice(7, 11)}`;
+  };
+
+  const handleSave = async () => {
+    if (!value.trim()) return;
+    setSaving(true);
+    try {
+      // Update log entry with corrected student ID
+      if (logId) {
+        const { editLog } = await import("../firebase/logs");
+        await editLog(logId, { studentId: value.trim().toUpperCase() });
+      }
+      // Regenerate QR with corrected ID
+      const qrData = `${value.trim().toUpperCase()}|${displayName}`;
+      const newQr = await QRCode.toDataURL(qrData, { width: 200, margin: 1, color: { dark: "#0d1f3c", light: "#ffffff" } });
+      onUpdate(value.trim().toUpperCase(), newQr);
+      setEditing(false);
+      toast.success("Student ID updated!");
+    } catch {
+      toast.error("Failed to update. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const qrUrl = null; // managed by parent
+
+  return (
+    <div style={{ marginBottom: 16 }}>
+      {/* Student ID row */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 12 }}>
+        {editing ? (
+          <>
+            <input
+              type="text" value={value} maxLength={12}
+              onChange={e => setValue(formatId(e.target.value))}
+              inputMode="numeric"
+              style={{ padding: "6px 10px", border: "1px solid #c9972b", borderRadius: 6, fontSize: 13, fontFamily: "'Poppins',sans-serif", outline: "none", width: 130, textAlign: "center", color: "#0d1f3c" }}
+            />
+            <button onClick={handleSave} disabled={saving} style={{ padding: "6px 12px", background: "#0d1f3c", color: "white", border: "none", borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "'Poppins',sans-serif" }}>
+              {saving ? "..." : "Save"}
+            </button>
+            <button onClick={() => { setEditing(false); setValue(studentId); }} style={{ padding: "6px 10px", background: "#f0f0f0", color: "#888", border: "none", borderRadius: 6, fontSize: 12, cursor: "pointer", fontFamily: "'Poppins',sans-serif" }}>
+              Cancel
+            </button>
+          </>
+        ) : (
+          <>
+            <span style={{ fontSize: 13, color: "#555", fontFamily: "monospace" }}>{studentId}</span>
+            <button onClick={() => setEditing(true)} style={{ background: "none", border: "none", color: "#c9972b", fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: "'Poppins',sans-serif", padding: "2px 6px" }}>
+              Wrong ID? Edit
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function StudentCheckIn() {
   const { user, userProfile } = useAuth();
 
@@ -159,10 +227,23 @@ export default function StudentCheckIn() {
               {purpose}
             </p>
             {checkInTime && (
-              <p style={{ color: "#aaa", fontSize: 12, marginBottom: 20, fontFamily: "'Poppins',sans-serif" }}>
+              <p style={{ color: "#aaa", fontSize: 12, marginBottom: 16, fontFamily: "'Poppins',sans-serif" }}>
                 Checked in at {format(checkInTime, "hh:mm a")} · {format(checkInTime, "MMMM d, yyyy")}
               </p>
             )}
+
+            {/* Student ID with edit option */}
+            <StudentIdEditor
+              studentId={studentId}
+              logId={logId}
+              displayName={userProfile?.displayName || user?.displayName || ""}
+              onUpdate={(newId, newQr) => {
+                setStudentId(newId);
+                setQrUrl(newQr);
+                const existing = getSaved();
+                if (existing) localStorage.setItem("neu_checkin", JSON.stringify({ ...existing, qrUrl: newQr }));
+              }}
+            />
 
             {/* QR Code */}
             {qrUrl && (
