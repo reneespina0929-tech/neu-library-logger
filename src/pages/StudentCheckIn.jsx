@@ -117,39 +117,44 @@ export default function StudentCheckIn() {
   // ── Success Screen ──
   if (checkedIn) {
     return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#0a1628", padding: 20 }}>
-        <div style={{ width: "100%", maxWidth: 820, display: "flex", borderRadius: 20, overflow: "hidden", boxShadow: "0 24px 60px rgba(0,0,0,0.4)" }} className="fade-in">
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", backgroundImage: "url('/login-bg.png')", backgroundSize: "cover", backgroundPosition: "center top", padding: 20, position: "relative" }}>
+        <div style={{ position: "absolute", inset: 0, background: "rgba(10,22,40,0.7)" }} />
+        <div style={{ width: "100%", maxWidth: 820, display: "flex", borderRadius: 20, overflow: "hidden", boxShadow: "0 24px 60px rgba(0,0,0,0.4)", position: "relative", zIndex: 1 }} className="fade-in">
         <div style={{ flex: 1, background: "white", padding: "48px 40px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minWidth: 0, textAlign: "center" }}>
         <div style={{ width: "100%" }}>
           {/* Success icon */}
-          <div style={{ width: 80, height: 80, borderRadius: "50%", background: "rgba(26,154,92,0.15)", border: "2px solid rgba(26,154,92,0.4)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px" }}>
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#1a9a5c" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          <div style={{ width: 72, height: 72, borderRadius: "50%", background: "rgba(26,154,92,0.1)", border: "2px solid rgba(26,154,92,0.3)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#1a9a5c" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
 
-          <h1 style={{ color: "#c9972b", fontFamily: "'Poppins',sans-serif", fontSize: 28, fontWeight: 700, marginBottom: 8 }}>
-            Welcome to NEU Library!
-          </h1>
-          <p style={{ color: "white", fontSize: 18, fontWeight: 500, marginBottom: 6 }}>
-            {userProfile?.displayName || user?.displayName || "Student"}
+          <p style={{ fontSize: 11, fontWeight: 700, color: "#c9972b", letterSpacing: "0.12em", textTransform: "uppercase", margin: "0 0 6px", fontFamily: "'Poppins',sans-serif" }}>
+            NEU Library
           </p>
-          <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 14, marginBottom: 6 }}>
+          <h1 style={{ color: "#0d1f3c", fontFamily: "'Poppins',sans-serif", fontSize: 22, fontWeight: 700, marginBottom: 4 }}>
+            Hi, {userProfile?.displayName?.split(" ")[0] || user?.displayName?.split(" ")[0] || "Student"}!
+          </h1>
+          <p style={{ color: "#c9972b", fontSize: 17, fontWeight: 600, marginBottom: 4, fontFamily: "'Poppins',sans-serif" }}>
+            Welcome to NEU Library!
+          </p>
+          <p style={{ color: "#888", fontSize: 13, marginBottom: 4, fontFamily: "'Poppins',sans-serif" }}>
             {purpose}
           </p>
           {checkInTime && (
-            <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 13, marginBottom: 24 }}>
+            <p style={{ color: "#aaa", fontSize: 12, marginBottom: 20, fontFamily: "'Poppins',sans-serif" }}>
               Checked in at {format(checkInTime, "hh:mm a")} · {format(checkInTime, "MMMM d, yyyy")}
             </p>
           )}
 
           {/* QR Code */}
           {qrUrl && (
-            <div style={{ marginBottom: 24 }}>
-              <div style={{ background: "white", borderRadius: 16, padding: 16, display: "inline-block", boxShadow: "0 4px 20px rgba(0,0,0,0.3)" }}>
-                <img src={qrUrl} alt="Your QR Code" width={160} height={160} style={{ display: "block" }} />
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ background: "white", borderRadius: 12, padding: 12, display: "inline-block", boxShadow: "0 2px 12px rgba(0,0,0,0.1)", border: "1px solid #f0f0f0" }}>
+                <img src={qrUrl} alt="Your QR Code" width={140} height={140} style={{ display: "block" }} />
               </div>
-              <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, marginTop: 8 }}>
-                Your personal QR code — show this to the librarian next visit
-              </p>
+              <div style={{ marginTop: 10, padding: "10px 14px", background: "#f8f9fb", borderRadius: 8, border: "1px solid #eee", textAlign: "left" }}>
+                <p style={{ fontSize: 12, fontWeight: 600, color: "#0d1f3c", margin: "0 0 3px", fontFamily: "'Poppins',sans-serif" }}>📲 Save your QR code</p>
+                <p style={{ fontSize: 11, color: "#888", margin: 0, lineHeight: 1.5, fontFamily: "'Poppins',sans-serif" }}>Show this to the librarian on your next visit for faster check-in — no need to type your Student ID.</p>
+              </div>
               <button onClick={() => {
                 const a = document.createElement("a");
                 a.href = qrUrl;
@@ -157,9 +162,9 @@ export default function StudentCheckIn() {
                 a.click();
               }} style={{
                 marginTop: 10, display: "inline-flex", alignItems: "center", gap: 6,
-                padding: "7px 16px", background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)", borderRadius: 8,
-                color: "white", fontSize: 12, fontWeight: 600, cursor: "pointer",
+                padding: "7px 16px", background: "white",
+                border: "1px solid #e0e0e0", borderRadius: 8,
+                color: "#0d1f3c", fontSize: 12, fontWeight: 600, cursor: "pointer",
                 fontFamily: "'Poppins',sans-serif",
               }}>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -226,8 +231,9 @@ export default function StudentCheckIn() {
 
   // ── Check-In Form ──
   return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#0a1628", padding: 20 }}>
-      <div style={{ width: "100%", maxWidth: 820, display: "flex", borderRadius: 20, overflow: "hidden", boxShadow: "0 24px 60px rgba(0,0,0,0.4)" }} className="fade-in">
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", backgroundImage: "url('/login-bg.png')", backgroundSize: "cover", backgroundPosition: "center top", padding: 20, position: "relative" }}>
+      <div style={{ position: "absolute", inset: 0, background: "rgba(10,22,40,0.7)" }} />
+      <div style={{ width: "100%", maxWidth: 820, display: "flex", borderRadius: 20, position: "relative", zIndex: 1, overflow: "hidden", boxShadow: "0 24px 60px rgba(0,0,0,0.4)" }} className="fade-in">
 
         {/* Left: form */}
         <div style={{ flex: 1, background: "white", padding: "40px", display: "flex", flexDirection: "column", justifyContent: "center", minWidth: 0 }}>
