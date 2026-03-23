@@ -315,12 +315,6 @@ export default function StudentCheckIn() {
           </div>
         </div>
 
-        {/* Sign out link */}
-        <p style={{ textAlign: "center", marginTop: 16 }}>
-          <button onClick={() => { localStorage.removeItem("neu_checkin"); logoutUser(); }} style={{ background: "none", color: "rgba(255,255,255,0.35)", fontSize: 12, cursor: "pointer", fontFamily: "'Poppins',sans-serif" }}>
-            Not you? Sign out
-          </button>
-        </p>
       </div>
     </div>
   );
