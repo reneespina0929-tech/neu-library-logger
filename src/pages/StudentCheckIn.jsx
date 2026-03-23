@@ -117,21 +117,16 @@ export default function StudentCheckIn() {
   // ── Success Screen ──
   if (checkedIn) {
     return (
-      <div style={{
-        minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
-        position: "relative",
-        backgroundImage: "url('/login-bg.png?v=3')",
-        backgroundSize: "cover", backgroundPosition: "center top",
-        backgroundColor: "#0d1f3c", padding: 20,
-      }}>
-        <div style={{ position: "absolute", inset: 0, background: "rgba(13,31,60,0.7)", zIndex: 0 }} />
-        <div style={{ position: "relative", zIndex: 1, textAlign: "center", maxWidth: 420, width: "100%" }} className="fade-in">
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#0a1628", padding: 20 }}>
+        <div style={{ width: "100%", maxWidth: 820, display: "flex", borderRadius: 20, overflow: "hidden", boxShadow: "0 24px 60px rgba(0,0,0,0.4)" }} className="fade-in">
+        <div style={{ flex: 1, background: "white", padding: "48px 40px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minWidth: 0, textAlign: "center" }}>
+        <div style={{ width: "100%" }}>
           {/* Success icon */}
           <div style={{ width: 80, height: 80, borderRadius: "50%", background: "rgba(26,154,92,0.15)", border: "2px solid rgba(26,154,92,0.4)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px" }}>
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#1a9a5c" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
 
-          <h1 style={{ color: "var(--gold)", fontFamily: "'Poppins',sans-serif", fontSize: 28, fontWeight: 700, marginBottom: 8 }}>
+          <h1 style={{ color: "#c9972b", fontFamily: "'Poppins',sans-serif", fontSize: 28, fontWeight: 700, marginBottom: 8 }}>
             Welcome to NEU Library!
           </h1>
           <p style={{ color: "white", fontSize: 18, fontWeight: 500, marginBottom: 6 }}>
@@ -201,35 +196,47 @@ export default function StudentCheckIn() {
 
           </div>
         </div>
+        </div>
+        {/* Right quote panel */}
+        <div style={{ flex: 1, position: "relative", overflow: "hidden", minWidth: 0, backgroundImage: "url('/login-bg.png')", backgroundSize: "cover", backgroundPosition: "center top" }}>
+          <div style={{ position: "absolute", inset: 0, background: "rgba(13,31,60,0.78)" }} />
+          <div style={{ position: "relative", zIndex: 1, height: "100%", padding: "40px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+            <div>
+              <div style={{ fontSize: 72, lineHeight: 1, color: "#c9972b", fontFamily: "Georgia,serif", marginBottom: 4 }}>"</div>
+              <p style={{ color: "white", fontSize: 17, fontWeight: 600, lineHeight: 1.6, margin: "0 0 16px", fontFamily: "'Poppins',sans-serif" }}>A library is not a luxury but one of the necessities of life.</p>
+              <div style={{ width: 32, height: 2, background: "#c9972b", borderRadius: 2, marginBottom: 10 }} />
+              <p style={{ color: "rgba(201,151,43,0.75)", fontSize: 12, margin: 0, fontFamily: "'Poppins',sans-serif" }}>— Henry Ward Beecher</p>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ width: 34, height: 34, borderRadius: 8, background: "rgba(201,151,43,0.12)", border: "1px solid rgba(201,151,43,0.25)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <img src="/neu-logo.png" width={20} height={20} alt="NEU" style={{ objectFit: "contain" }} />
+              </div>
+              <div>
+                <p style={{ color: "#c9972b", fontSize: 13, fontWeight: 700, margin: 0, fontFamily: "'Poppins',sans-serif" }}>LibraLog</p>
+                <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 11, margin: 0, fontFamily: "'Poppins',sans-serif" }}>New Era University</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>
+        <style>{`@media(max-width:640px){.login-split{flex-direction:column!important;max-width:400px!important;}.login-quote{min-height:160px;}}`}</style>
       </div>
     );
   }
 
   // ── Check-In Form ──
   return (
-    <div style={{
-      minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
-      position: "relative",
-      backgroundImage: "url('/login-bg.png?v=3')",
-      backgroundSize: "cover", backgroundPosition: "center top",
-      backgroundColor: "#0d1f3c", padding: 20,
-    }}>
-      <div style={{ position: "absolute", inset: 0, background: "rgba(13,31,60,0.6)", zIndex: 0 }} />
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#0a1628", padding: 20 }}>
+      <div style={{ width: "100%", maxWidth: 820, display: "flex", borderRadius: 20, overflow: "hidden", boxShadow: "0 24px 60px rgba(0,0,0,0.4)" }} className="fade-in">
 
-      <div style={{ width: "100%", maxWidth: 420, position: "relative", zIndex: 1 }} className="fade-in">
-        {/* Header */}
-        <div style={{ textAlign: "center", marginBottom: 28, display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <LogoIcon size={52} />
-          <h1 style={{ color: "var(--gold)", fontFamily: "'Poppins',sans-serif", fontSize: 24, marginTop: 12, marginBottom: 4, fontWeight: 700 }}>
-            Library Check-In
-          </h1>
-          <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 13 }}>
-            Welcome, <strong style={{ color: "white" }}>{userProfile?.displayName || user?.displayName || user?.email}</strong>
+        {/* Left: form */}
+        <div style={{ flex: 1, background: "white", padding: "40px", display: "flex", flexDirection: "column", justifyContent: "center", minWidth: 0 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: "#c9972b", letterSpacing: "0.12em", textTransform: "uppercase", margin: "0 0 8px", fontFamily: "'Poppins',sans-serif" }}>NEU Library</p>
+          <h1 style={{ fontSize: 22, fontWeight: 700, color: "#0d1f3c", margin: "0 0 4px", fontFamily: "'Poppins',sans-serif" }}>Library Check-In</h1>
+          <p style={{ fontSize: 13, color: "#888", margin: "0 0 20px", fontFamily: "'Poppins',sans-serif" }}>
+            Welcome, <strong style={{ color: "#0d1f3c" }}>{userProfile?.displayName || user?.displayName || user?.email}</strong>
           </p>
-        </div>
-
-        <div style={{ background: "rgba(255,255,255,0.05)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: 28 }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 13 }}>
 
             {/* Student ID */}
             <div>
@@ -243,8 +250,8 @@ export default function StudentCheckIn() {
                 placeholder="24-12781-942"
                 maxLength={12}
                 style={inputStyle}
-                onFocus={e => e.target.style.borderColor = "var(--gold)"}
-                onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.15)"}
+                onFocus={e => e.target.style.borderColor = "#c9972b"}
+                onBlur={e => e.target.style.borderColor = "#e0e0e0"}
               />
             </div>
 
@@ -254,8 +261,8 @@ export default function StudentCheckIn() {
                 <div>
                   <label style={labelStyle}>Department / College <span style={{ color: "#ff8080" }}>*</span></label>
                   <select value={dept} onChange={e => { setDept(e.target.value); setProgram(""); }} style={selectStyle}
-                    onFocus={e => e.target.style.borderColor = "var(--gold)"}
-                    onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.15)"}>
+                    onFocus={e => e.target.style.borderColor = "#c9972b"}
+                    onBlur={e => e.target.style.borderColor = "#e0e0e0"}>
                     <option value="" disabled>Select your department...</option>
                     {DEPT_KEYS.map(k => <option key={k} value={k}>{k} — {DEPARTMENTS[k].label}</option>)}
                   </select>
@@ -264,8 +271,8 @@ export default function StudentCheckIn() {
                   <div>
                     <label style={labelStyle}>Program <span style={{ color: "#ff8080" }}>*</span></label>
                     <select value={program} onChange={e => setProgram(e.target.value)} style={selectStyle}
-                      onFocus={e => e.target.style.borderColor = "var(--gold)"}
-                      onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.15)"}>
+                      onFocus={e => e.target.style.borderColor = "#c9972b"}
+                      onBlur={e => e.target.style.borderColor = "#e0e0e0"}>
                       <option value="" disabled>Select your program...</option>
                       {programs.map(p => <option key={p} value={p}>{p}</option>)}
                     </select>
@@ -278,8 +285,8 @@ export default function StudentCheckIn() {
             <div>
               <label style={labelStyle}>Purpose of Visit <span style={{ color: "#ff8080" }}>*</span></label>
               <select value={purpose} onChange={e => setPurpose(e.target.value)} style={selectStyle}
-                onFocus={e => e.target.style.borderColor = "var(--gold)"}
-                onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.15)"}>
+                onFocus={e => e.target.style.borderColor = "#c9972b"}
+                onBlur={e => e.target.style.borderColor = "#e0e0e0"}>
                 <option value="" disabled>Select purpose...</option>
                 {purposeOptions.map(p => <option key={p} value={p}>{p}</option>)}
               </select>
@@ -287,7 +294,7 @@ export default function StudentCheckIn() {
 
             {/* Error */}
             {error && (
-              <div style={{ background: "rgba(217,57,43,0.15)", border: "1px solid rgba(217,57,43,0.4)", borderRadius: 8, padding: "10px 14px", color: "#ff8a80", fontSize: 13, display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ background: "rgba(217,57,43,0.08)", border: "1px solid rgba(217,57,43,0.3)", borderRadius: 8, padding: "10px 14px", color: "#c0392b", fontSize: 13, display: "flex", alignItems: "center", gap: 8 }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0 }}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                 {error}
               </div>
@@ -297,7 +304,7 @@ export default function StudentCheckIn() {
             <button onClick={handleSubmit} disabled={loading} style={{
               width: "100%", padding: "13px",
               background: loading ? "rgba(201,151,43,0.5)" : "linear-gradient(135deg, #d4a032, #c9972b)",
-              color: "var(--navy)", fontWeight: 700, fontSize: 15,
+              color: "#0d1f3c", fontWeight: 700, fontSize: 15,
               borderRadius: 10, cursor: loading ? "not-allowed" : "pointer",
               border: "none", fontFamily: "'Poppins',sans-serif",
               boxShadow: loading ? "none" : "0 4px 14px rgba(201,151,43,0.35)",
@@ -319,11 +326,11 @@ export default function StudentCheckIn() {
   );
 }
 
-const labelStyle = { color: "rgba(255,255,255,0.6)", fontSize: 12, fontWeight: 600, display: "block", marginBottom: 6 };
+const labelStyle = { color: "#555", fontSize: 12, fontWeight: 600, display: "block", marginBottom: 6, fontFamily: "'Poppins',sans-serif" };
 const inputStyle = {
   width: "100%", padding: "10px 14px",
-  background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)",
-  borderRadius: 8, color: "white", fontSize: 14, outline: "none",
+  background: "white", border: "1px solid #e0e0e0",
+  borderRadius: 8, color: "#0d1f3c", fontSize: 14, outline: "none",
   transition: "border-color 0.15s", fontFamily: "'Poppins',sans-serif",
 };
 const selectStyle = { ...inputStyle, cursor: "pointer" };
