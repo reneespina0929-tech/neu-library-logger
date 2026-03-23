@@ -209,8 +209,9 @@ export default function StudentCheckIn() {
 
   // ── Check-In Form ──
   return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#0a1628", padding: 20 }}>
-      <div style={{ width: "100%", maxWidth: 820, display: "flex", borderRadius: 20, overflow: "hidden", boxShadow: "0 24px 60px rgba(0,0,0,0.4)" }} className="fade-in">
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", backgroundImage: "url('/login-bg.png')", backgroundSize: "cover", backgroundPosition: "center top", padding: 20, position: "relative" }}>
+      <div style={{ position: "absolute", inset: 0, background: "rgba(13,31,60,0.72)" }} />
+      <div style={{ width: "100%", maxWidth: 820, display: "flex", borderRadius: 20, overflow: "hidden", boxShadow: "0 24px 60px rgba(0,0,0,0.4)", position: "relative", zIndex: 1 }} className="fade-in">
 
         {/* Left: form */}
         <div style={{ flex: 1, background: "white", padding: "40px", display: "flex", flexDirection: "column", justifyContent: "center", minWidth: 0 }}>
@@ -296,9 +297,45 @@ export default function StudentCheckIn() {
               {loading ? "Logging in..." : "Log My Visit"}
             </button>
           </div>
+
+          {/* Sign out */}
+          <button onClick={() => { localStorage.removeItem("neu_checkin"); logoutUser(); }}
+            style={{ background: "none", border: "none", color: "#bbb", fontSize: 12, cursor: "pointer", fontFamily: "'Poppins',sans-serif", marginTop: 14, padding: 0 }}>
+            Not you? Sign out
+          </button>
+        </div>
+
+        {/* Right: quote panel with background image */}
+        <div className="login-quote" style={{ flex: 1, position: "relative", overflow: "hidden", minWidth: 0, backgroundImage: "url('/login-bg.png')", backgroundSize: "cover", backgroundPosition: "center top" }}>
+          <div style={{ position: "absolute", inset: 0, background: "rgba(13,31,60,0.78)" }} />
+          <div style={{ position: "relative", zIndex: 1, height: "100%", padding: "40px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+            <div>
+              <div style={{ fontSize: 72, lineHeight: 1, color: "#c9972b", fontFamily: "Georgia,serif", marginBottom: 4 }}>"</div>
+              <p style={{ color: "white", fontSize: 17, fontWeight: 600, lineHeight: 1.6, margin: "0 0 16px", fontFamily: "'Poppins',sans-serif" }}>
+                A library is not a luxury but one of the necessities of life.
+              </p>
+              <div style={{ width: 32, height: 2, background: "#c9972b", borderRadius: 2, marginBottom: 10 }} />
+              <p style={{ color: "rgba(201,151,43,0.75)", fontSize: 12, margin: 0, fontFamily: "'Poppins',sans-serif" }}>— Henry Ward Beecher</p>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ width: 34, height: 34, borderRadius: 8, background: "rgba(201,151,43,0.12)", border: "1px solid rgba(201,151,43,0.25)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <img src="/neu-logo.png" width={20} height={20} alt="NEU" style={{ objectFit: "contain" }} />
+              </div>
+              <div>
+                <p style={{ color: "#c9972b", fontSize: 13, fontWeight: 700, margin: 0, fontFamily: "'Poppins',sans-serif" }}>LibraLog</p>
+                <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 11, margin: 0, fontFamily: "'Poppins',sans-serif" }}>New Era University</p>
+              </div>
+            </div>
+          </div>
         </div>
 
       </div>
+      <style>{`
+        .login-quote { display: flex; }
+        @media (max-width: 640px) {
+          .login-quote { display: none !important; }
+        }
+      `}</style>
     </div>
   );
 }
