@@ -1,10 +1,9 @@
 // src/pages/LoginPage.jsx
 import { useNavigate } from "react-router-dom";
 import { loginWithGoogle } from "../firebase/auth";
-import { useAuth } from "../hooks/useAuth.jsx";
 import toast from "react-hot-toast";
 
-const LogoIcon = ({ size = 40 }) => (
+const LogoIcon = ({ size = 32 }) => (
   <img src="/neu-logo.png" width={size} height={size} alt="NEU Logo"
     style={{ objectFit: "contain", display: "block" }} />
 );
@@ -30,59 +29,43 @@ export default function LoginPage({ deletedAccount = false, blockedAccount = fal
     : null;
 
   return (
-    <div style={{
-      minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
-      position: "relative",
-      backgroundImage: "url('/login-bg.png?v=3')",
-      backgroundSize: "cover", backgroundPosition: "center top",
-      backgroundColor: "#0d1f3c",
-    }}>
-      <div style={{ position: "absolute", inset: 0, background: "rgba(13,31,60,0.55)", zIndex: 0 }} />
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#0a1628", padding: 20 }}>
+      <div className="login-split fade-in" style={{ width: "100%", maxWidth: 820, display: "flex", borderRadius: 20, overflow: "hidden", boxShadow: "0 24px 60px rgba(0,0,0,0.4)" }}>
 
-      <div style={{ width: "100%", maxWidth: 400, position: "relative", zIndex: 1, padding: 20 }} className="fade-in">
-
-        {/* Logo */}
-        <div style={{ textAlign: "center", marginBottom: 32, display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <LogoIcon size={56} />
-          <h1 style={{ color: "var(--gold)", fontFamily: "'Poppins',sans-serif", fontSize: 28, marginTop: 14, marginBottom: 4, fontWeight: 700 }}>
-            LibraLog
+        {/* ── Left: Form ── */}
+        <div style={{ flex: 1, background: "white", padding: "48px 40px", display: "flex", flexDirection: "column", justifyContent: "center", minWidth: 0 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: "#c9972b", letterSpacing: "0.12em", textTransform: "uppercase", margin: "0 0 10px", fontFamily: "'Poppins',sans-serif" }}>
+            NEU Library
+          </p>
+          <h1 style={{ fontSize: 26, fontWeight: 700, color: "#0d1f3c", margin: "0 0 6px", fontFamily: "'Poppins',sans-serif" }}>
+            Welcome back
           </h1>
-          <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 13 }}>New Era University Library</p>
-        </div>
-
-        {/* Card */}
-        <div style={{ background: "rgba(255,255,255,0.05)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: 32 }}>
-
-          <h2 style={{ color: "white", fontFamily: "'Poppins',sans-serif", fontSize: 18, marginBottom: 6, fontWeight: 600 }}>
-            Sign In
-          </h2>
-          <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 13, marginBottom: 24 }}>
-            Use your NEU Google account to continue
+          <p style={{ fontSize: 13, color: "#888", margin: "0 0 28px", fontFamily: "'Poppins',sans-serif" }}>
+            Sign in to access LibraLog
           </p>
 
-          {/* Error message */}
           {errorMessage && (
-            <div style={{ background: "rgba(217,57,43,0.15)", border: "1px solid rgba(217,57,43,0.4)", borderRadius: 8, padding: "10px 14px", color: "#ff8a80", fontSize: 13, display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+            <div style={{ background: "rgba(217,57,43,0.08)", border: "1px solid rgba(217,57,43,0.3)", borderRadius: 8, padding: "10px 14px", color: "#c0392b", fontSize: 13, display: "flex", alignItems: "center", gap: 8, marginBottom: 20, fontFamily: "'Poppins',sans-serif" }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0 }}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
               {errorMessage}
             </div>
           )}
 
-          {/* Google Sign-In */}
           <button onClick={handleGoogle} style={{
-            width: "100%", padding: "13px",
+            width: "100%", padding: "12px 16px",
             background: "white", color: "#3c4043",
-            fontWeight: 700, fontSize: 15, borderRadius: 10,
+            fontWeight: 600, fontSize: 14, borderRadius: 10,
             cursor: "pointer", display: "flex", alignItems: "center",
-            justifyContent: "center", gap: 12, border: "none",
-            boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
+            justifyContent: "center", gap: 12,
+            border: "1px solid #e0e0e0",
             fontFamily: "'Poppins',sans-serif",
             transition: "all 0.2s",
+            boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
           }}
-            onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 4px 20px rgba(0,0,0,0.25)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
-            onMouseLeave={e => { e.currentTarget.style.boxShadow = "0 2px 12px rgba(0,0,0,0.15)"; e.currentTarget.style.transform = "translateY(0)"; }}
+            onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.12)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+            onMouseLeave={e => { e.currentTarget.style.boxShadow = "0 1px 4px rgba(0,0,0,0.08)"; e.currentTarget.style.transform = "translateY(0)"; }}
           >
-            <svg width="20" height="20" viewBox="0 0 48 48">
+            <svg width="18" height="18" viewBox="0 0 48 48">
               <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
               <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
               <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
@@ -91,15 +74,55 @@ export default function LoginPage({ deletedAccount = false, blockedAccount = fal
             Continue with Google
           </button>
 
-          <p style={{ color: "rgba(255,255,255,0.25)", fontSize: 12, textAlign: "center", marginTop: 20, lineHeight: 1.6 }}>
-            Use your <strong style={{ color: "rgba(255,255,255,0.4)" }}>@neu.edu.ph</strong> Google account
+          <p style={{ fontSize: 11, color: "#bbb", margin: "14px 0 0", fontFamily: "'Poppins',sans-serif" }}>
+            @neu.edu.ph accounts only
+          </p>
+
+          <p style={{ fontSize: 11, color: "#ccc", margin: "48px 0 0", fontFamily: "'Poppins',sans-serif" }}>
+            © {new Date().getFullYear()} New Era University
           </p>
         </div>
 
-        <p style={{ color: "rgba(255,255,255,0.2)", fontSize: 11, textAlign: "center", marginTop: 20 }}>
-          © {new Date().getFullYear()} New Era University · All rights reserved
-        </p>
+        {/* ── Right: Quote panel with background image ── */}
+        <div className="login-quote" style={{
+          flex: 1, position: "relative", overflow: "hidden", minWidth: 0,
+          backgroundImage: "url('/login-bg.png')",
+          backgroundSize: "cover", backgroundPosition: "center top",
+        }}>
+          {/* Dark overlay */}
+          <div style={{ position: "absolute", inset: 0, background: "rgba(13,31,60,0.78)" }} />
+          {/* Content */}
+          <div style={{ position: "relative", zIndex: 1, height: "100%", padding: "48px 40px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+            <div>
+              <div style={{ fontSize: 80, lineHeight: 1, color: "#c9972b", fontFamily: "Georgia,serif", marginBottom: 4 }}>"</div>
+              <p style={{ color: "white", fontSize: 19, fontWeight: 600, lineHeight: 1.55, margin: "0 0 18px", fontFamily: "'Poppins',sans-serif" }}>
+                A library is not a luxury but one of the necessities of life.
+              </p>
+              <div style={{ width: 36, height: 2, background: "#c9972b", borderRadius: 2, marginBottom: 12 }} />
+              <p style={{ color: "rgba(201,151,43,0.75)", fontSize: 13, margin: 0, fontFamily: "'Poppins',sans-serif" }}>
+                — Henry Ward Beecher
+              </p>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ width: 36, height: 36, borderRadius: 8, background: "rgba(201,151,43,0.12)", border: "1px solid rgba(201,151,43,0.25)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <LogoIcon size={22} />
+              </div>
+              <div>
+                <p style={{ color: "#c9972b", fontSize: 14, fontWeight: 700, margin: 0, fontFamily: "'Poppins',sans-serif" }}>LibraLog</p>
+                <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 11, margin: 0, fontFamily: "'Poppins',sans-serif" }}>New Era University</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
+
+      <style>{`
+        @media (max-width: 640px) {
+          .login-split { flex-direction: column !important; max-width: 400px !important; }
+          .login-quote { min-height: 180px; }
+        }
+      `}</style>
     </div>
   );
 }
